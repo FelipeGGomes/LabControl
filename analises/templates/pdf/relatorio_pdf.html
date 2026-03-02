@@ -1,0 +1,195 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Análise #{{ relatorio.id }}</title>
+    <style>
+        /* Estilos seguros para xhtml2pdf */
+        @page {
+            size: a4 portrait;
+            margin: 2cm;
+            @frame footer {
+                -pdf-frame-content: footerContent;
+                bottom: 1cm;
+                margin-left: 2cm;
+                margin-right: 2cm;
+                height: 1cm;
+            }
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #333;
+            font-size: 12px;
+        }
+        .header-table {
+            width: 100%;
+            border-bottom: 2px solid #1a5c9e;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .logo-box {
+            background-color: #1a5c9e;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 10px;
+            text-align: center;
+            width: 50px;
+        }
+        .titulo {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .titulo h1 {
+            color: #1a5c9e;
+            font-size: 20px;
+            margin: 0;
+        }
+        .info-amostra {
+            background-color: #f5f9ff;
+            border: 1px solid #cde0f0;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .info-table {
+            width: 100%;
+        }
+        .info-table td {
+            padding: 4px;
+            vertical-align: top;
+        }
+        .tabela-parametros {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .tabela-parametros th {
+            background-color: #1a5c9e;
+            color: white;
+            padding: 8px;
+            text-align: left;
+        }
+        .tabela-parametros td {
+            border: 1px solid #ccc;
+            padding: 6px;
+        }
+        .assinaturas-table {
+            width: 100%;
+            margin-top: 50px;
+            text-align: center;
+        }
+        #footerContent {
+            text-align: center;
+            font-size: 9px;
+            color: #777;
+            border-top: 1px solid #ccc;
+            padding-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <table class="header-table">
+        <tr>
+            <td style="width: 60px; padding-right: 2px; vertical-align: middle;">
+                <img src="{% static 'image/sudema_logo.png' %}" 
+                    style="width: 50px; height: 50px;" 
+                    alt="Logo">
+            </td>
+            <td style="vertical-align: middle;">
+                <strong style="font-size: 16px;">SUDEMA</strong><br>
+                <span style="font-size: 11px; color: #555;">
+                    Superintendência de Administração do Meio Ambiente
+                </span>
+            </td>
+            <td style="text-align: right; font-size: 11px; vertical-align: middle;">
+                <strong>LabControl - RELATÓRIO DE ANÁLISE</strong><br>
+                Nº {{ relatorio.id }} | Emissão: {% now "d/m/Y H:i" %}
+            </td>
+        </tr>
+    </table>
+
+    <div class="titulo">
+        <h1>Resultados de Análise Laboratorial</h1>
+    </div>
+
+    <div class="info-amostra">
+        <table class="info-table">
+            <tr>
+                <td style="width: 50%;"><strong>Amostra:</strong> {{ relatorio.amostra|default:"Não informada" }}</td>
+                <td style="width: 50%;"><strong>Origem:</strong> {{ relatorio.origem.nome }}</td>
+            </tr>
+            <tr>
+                <td><strong>Data/Hora Coleta:</strong> {{ relatorio.data_coleta|date:"d/m/Y"|default:"-" }} {{ relatorio.hora_coleta|time:"H:i"|default:"" }}</td>
+                <td><strong>Coletador:</strong> {{ relatorio.coletador.nome|default:"-" }}</td>
+            </tr>
+            <tr>
+                <td><strong>Estação:</strong> {{ relatorio.estacao|default:"-" }}</td>
+                <td><strong>Lote:</strong> {{ relatorio.lote|default:"-" }}</td>
+            </tr>
+            <tr>
+                <td><strong>Processador BAC:</strong> {{ relatorio.processador_bac|default:"-" }}</td>
+                <td><strong>Data Proc. BAC:</strong> {{ relatorio.data_processamento_bac|date:"d/m/Y"|default:"-" }} {{ relatorio.hora_processamento_bac|time:"H:i"|default:"" }}</td>
+            </tr>
+            <tr>
+                <td><strong>Processador DBO:</strong> {{ relatorio.processador_dbo|default:"-" }}</td>
+                <td><strong>Data Incub. DBO:</strong> {{ relatorio.data_incubacao_dbo|date:"d/m/Y"|default:"-" }} {{ relatorio.hora_incubacao_dbo|time:"H:i"|default:"" }}</td>
+            </tr>
+            <tr>
+                <td colspan="2"><strong>Controle:</strong> {{ relatorio.controle|default:"-" }}</td>
+            </tr>
+            {% if relatorio.obs %}
+            <tr>
+                <td colspan="2"><strong>Observações:</strong> {{ relatorio.obs }}</td>
+            </tr>
+            {% endif %}
+        </table>
+    </div>
+
+    <h3 style="color: #1a4b77;">Parâmetros Analisados</h3>
+    <table class="tabela-parametros">
+        <thead>
+            <tr>
+                <th>Parâmetro</th>
+                <th>Resultado Obtido</th>
+                <th>Data/Hora da Análise</th>
+                <th>Analista Responsável</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for param in parametros %}
+            <tr>
+                <td><strong>{{ param.nome }}</strong></td>
+                <td>{{ param.resultado|default:"-" }}</td>
+                <td>{{ param.data_analise }}</td>
+                <td>{{ param.analista }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" style="text-align: center; color: #999;">Nenhum parâmetro registrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="assinaturas-table">
+        <tr>
+            <td>
+                _________________________________<br>
+                <strong>Responsável Técnico</strong><br>
+                CRQ / CRBio
+            </td>
+            <td>
+                _________________________________<br>
+                <strong>Coordenador do Laboratório</strong><br>
+                Assinatura
+            </td>
+        </tr>
+    </table>
+
+    <div id="footerContent">
+        Este relatório é válido apenas para a amostra analisada. A reprodução só pode ser feita na íntegra.<br>
+        Superintendência de Administração do Meio Ambiente - CNPJ 08.329.849/0001-15 - protoco@sudema.pb.gov.br - Página <pdf:pagenumber> de <pdf:pagecount>
+    </div>
+</body>
+</html>

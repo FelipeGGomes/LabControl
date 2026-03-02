@@ -1,0 +1,465 @@
+{% extends 'index.html' %}
+
+{% block title %}Detalhe do Relatório · LabDash{% endblock %}
+
+{% block page_header %}
+<h1>Relatório #{{ relatorio.id }}</h1>
+<div class="breadcrumb">Dashboard / Relatórios / Detalhe</div>
+{% endblock %}
+
+{% block content %}
+<div class="form-card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2><i class="fas fa-file-alt"></i> Informações da amostra</h2>
+        <div>
+            <button class="btn-outline" onclick="gerarPDF()"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
+        </div>
+    </div>
+
+    <form method="post" action="{% url 'atualizar_relatorio' relatorio.id %}">
+        {% csrf_token %}
+
+        <!-- Primeira linha: Amostra e Origem -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="amostra"><i class="fas fa-tag"></i> Amostra:</label>
+                <input type="text" id="amostra" name="amostra" value="{{ relatorio.amostra }}" required>
+            </div>
+            <div class="form-group">
+                <label for="origem"><i class="fas fa-map-pin"></i> Origem:</label>
+                <select id="origem" name="origem" required>
+                    {% for origem in origens %}
+                    <option value="{{ origem.id }}" {% if relatorio.origem.id == origem.id %}selected{% endif %}>
+                        {{ origem.nome }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <!-- Data e hora da coleta + Coletador + Estação -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="data_coleta"><i class="far fa-calendar-alt"></i> Data da Coleta:</label>
+                <input type="date" id="data_coleta" name="data_coleta" value="{{ relatorio.data_coleta|date:'Y-m-d' }}"
+                    required>
+            </div>
+            <div class="form-group">
+                <label for="hora_coleta"><i class="far fa-clock"></i> Hora da Coleta:</label>
+                <input type="time" id="hora_coleta" name="hora_coleta" value="{{ relatorio.hora_coleta|time:'H:i' }}"
+                    required>
+            </div>
+            <div class="form-group">
+                <label for="coletador"><i class="fas fa-user"></i> Coletador:</label>
+                <select id="coletador" name="coletador">
+                    <option value="">Selecione</option>
+                    {% for coletador in coletadores %}
+                    <option value="{{ coletador.id }}" {% if relatorio.coletador.id == coletador.id %}selected{% endif %}>
+                        {{ coletador.nome }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="estacao"><i class="fas fa-map-marker-alt"></i> Estação:</label>
+                <input type="text" id="estacao" name="estacao" value="{{ relatorio.estacao }}">
+            </div>
+        </div>
+
+        <!-- Seção Processamento BAC -->
+        <div class="section-divider">
+            <h3><i class="fas fa-microscope"></i> Processamento BAC</h3>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="processador_bac">Processador BAC:</label>
+                <input type="text" id="processador_bac" name="processador_bac" value="{{ relatorio.processador_bac }}">
+            </div>
+            <div class="form-group">
+                <label for="data_processamento_bac">Data processamento BAC:</label>
+                <input type="date" id="data_processamento_bac" name="data_processamento_bac"
+                    value="{{ relatorio.data_processamento_bac|date:'Y-m-d' }}">
+            </div>
+            <div class="form-group">
+                <label for="hora_processamento_bac">Hora do processamento BAC:</label>
+                <input type="time" id="hora_processamento_bac" name="hora_processamento_bac"
+                    value="{{ relatorio.hora_processamento_bac|time:'H:i' }}">
+            </div>
+        </div>
+
+        <!-- Seção Processamento DBO -->
+        <div class="section-divider">
+            <h3><i class="fas fa-tint"></i> Processamento DBO</h3>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="processador_dbo">Processador DBO:</label>
+                <input type="text" id="processador_dbo" name="processador_dbo" value="{{ relatorio.processador_dbo }}">
+            </div>
+            <div class="form-group">
+                <label for="data_incubacao_dbo">Data incubação DBO:</label>
+                <input type="date" id="data_incubacao_dbo" name="data_incubacao_dbo"
+                    value="{{ relatorio.data_incubacao_dbo|date:'Y-m-d' }}">
+            </div>
+            <div class="form-group">
+                <label for="hora_incubacao_dbo">Hora incubação DBO:</label>
+                <input type="time" id="hora_incubacao_dbo" name="hora_incubacao_dbo"
+                    value="{{ relatorio.hora_incubacao_dbo|time:'H:i' }}">
+            </div>
+        </div>
+
+        <!-- Lote e Controle -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="lote"><i class="fas fa-cubes"></i> Lote:</label>
+                <input type="text" id="lote" name="lote" value="{{ relatorio.lote }}">
+            </div>
+            <div class="form-group">
+                <label for="controle"><i class="fas fa-check-double"></i> Controle:</label>
+                <input type="text" id="controle" name="controle" value="{{ relatorio.controle }}">
+            </div>
+        </div>
+
+        <!-- Nova Seção: Parâmetros (Botões Toggle) -->
+        <div class="section-divider">
+            <h3><i class="fas fa-list-ol"></i> Parâmetros da Análise</h3>
+            <p style="color: #6f8aac; font-size: 0.9rem; margin-top: 5px;">Edite os parâmetros associados a este
+                relatório.</p>
+        </div>
+
+        <div class="parametros-grid">
+            {% for item in parametros_detalhados %}
+            <div class="parametro-card">
+                <!-- Checkbox invisível para controlar o toggle -->
+                <input type="checkbox" id="toggle_param_{{ item.parametro.id }}" class="param-toggle-checkbox"
+                    style="display: none;" {% if item.salvo %}checked{% endif %}>
+
+                <!-- O botão visual -->
+                <label for="toggle_param_{{ item.parametro.id }}" class="param-btn">
+                    <i class="fas fa-check-circle check-icon"></i>
+                    <span>{{ item.parametro.nome }}</span>
+                </label>
+
+                <!-- Os campos do parâmetro que aparecem ao clicar -->
+                <div class="param-fields form-row">
+                    <!-- Marcador para o backend saber que esse parâmetro foi selecionado -->
+                    <input type="hidden" 
+                    name="param_selecionado_{{ item.parametro.id }}" 
+                    value="1" 
+                    {% if not item.salvo %}disabled{% endif %} 
+                    class="param-id-input">
+
+                    <div class="form-group">
+                        <label>Resultado:</label>
+                        <input type="text" 
+                        name="param_resultado_{{ item.parametro.id }}"
+                        value="{{ item.salvo.resultado|default:'' }}"
+                        placeholder="Ex: 5.4 mg/L" {% if not item.salvo %}disabled{% endif %}              
+                        class="param-field-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Data:</label>
+                        <input type="date" 
+                        name="param_data_{{ item.parametro.id }}"
+                        value="{{ item.salvo.data_hora_resultado|date:'Y-m-d'|default:'' }}" {% if not item.salvo %}disabled{% endif %} 
+                        class="param-field-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Hora:</label>
+                        <input type="time" 
+                        name="param_hora_{{ item.parametro.id }}"
+                        value="{{ item.salvo.data_hora_resultado|time:'H:i'|default:'' }}" {% if not item.salvo %}disabled{% endif %} 
+                        class="param-field-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Analista:</label>
+                        <select name="param_analista_{{ item.parametro.id }}" 
+                                {% if not item.salvo %}disabled{% endif %}
+                                class="param-field-input">
+
+                            <option value="">Selecione...</option>
+
+                            {% for a in analistas %}
+                                <option value="{{ a.id }}"
+                                    {% if item.salvo and item.salvo.analista_id == a.id %}selected{% endif %}>
+                                    {{ a.nome }}
+                                </option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Observações -->
+        <div class="form-group full-width">
+            <label for="obs"><i class="fas fa-comment"></i> Observações:</label>
+            <textarea id="obs" name="obs" rows="4">{{ relatorio.obs }}</textarea>
+        </div>
+
+        <!-- Botões de ação -->
+        <div class="form-actions">
+            <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Salvar alterações</button>
+            <a href="{% url 'relatorio' %}" class="btn-secondary"><i class="fas fa-arrow-left"></i> Voltar para
+                lista</a>
+        </div>
+    </form>
+</div>
+
+<!-- Estilos adicionais (reaproveitados da página de cadastro) -->
+<style>
+    .form-card {
+        background: white;
+        border-radius: 28px;
+        padding: 32px;
+        box-shadow: 0 12px 30px rgba(0, 30, 60, 0.06);
+        border: 1px solid #e6ecf5;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .form-card .card-header h2 {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: #1a2c44;
+        margin-bottom: 0;
+    }
+
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        flex: 1 1 200px;
+        min-width: 180px;
+    }
+
+    .form-group.full-width {
+        flex: 1 1 100%;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #2e4b70;
+        margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 14px 16px;
+        border: 1.5px solid #dae2ed;
+        border-radius: 18px;
+        font-size: 0.95rem;
+        background: #fbfdff;
+        transition: 0.2s;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #1a5c9e;
+        box-shadow: 0 0 0 4px rgba(26, 92, 158, 0.1);
+        background: white;
+    }
+
+    .section-divider {
+        margin: 32px 0 24px 0;
+        border-top: 1px dashed #c9d9eb;
+        padding-top: 20px;
+    }
+
+    .section-divider h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #1a4b77;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-divider h3 i {
+        color: #2c6aa0;
+        font-size: 1.5rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 20px;
+        margin-top: 40px;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary {
+        background: #1a5c9e;
+        color: white;
+        border: none;
+        padding: 14px 38px;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        box-shadow: 0 6px 12px rgba(0, 65, 131, 0.2);
+    }
+
+    .btn-primary:hover {
+        background: #0f4370;
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #1e3f66;
+        border: 1.5px solid #b9cfec;
+        padding: 14px 38px;
+        border-radius: 40px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: 0.2s;
+    }
+
+    .btn-secondary:hover {
+        background: #eaf0fa;
+        border-color: #7fa3cc;
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 1px solid #b9cfec;
+        padding: 10px 20px;
+        border-radius: 40px;
+        color: #1e3f66;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-outline:hover {
+        background: #eaf0fa;
+        border-color: #7fa3cc;
+    }
+
+    /* Estilos dos Botões de Parâmetro */
+    .parametros-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 30px;
+    }
+
+    .parametro-card {
+        background: #fbfdff;
+        border: 1.5px solid #dbe6f3;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: 0.3s;
+    }
+
+    .parametro-card:hover {
+        border-color: #b9cfec;
+    }
+
+    .param-btn {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 24px;
+        width: 100%;
+        background: transparent;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #1e3f66;
+        user-select: none;
+        transition: 0.2s;
+    }
+
+    .param-btn .check-icon {
+        font-size: 1.3rem;
+        color: #c9d9eb;
+        transition: 0.3s;
+    }
+
+    .param-fields {
+        display: none;
+        padding: 0 24px 24px 24px;
+        background: #f4f8fc;
+        border-top: 1.5px dashed #dbe6f3;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding-top: 20px;
+    }
+
+    .param-toggle-checkbox:checked+.param-btn {
+        background: #ebf3fa;
+        color: #1a5c9e;
+    }
+
+    .param-toggle-checkbox:checked+.param-btn .check-icon {
+        color: #27ae60;
+    }
+
+    .param-toggle-checkbox:checked~.param-fields {
+        display: flex;
+    }
+
+    @media (max-width: 600px) {
+        .form-card {
+            padding: 20px;
+        }
+
+        .form-row {
+            flex-direction: column;
+            gap: 16px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkboxes = document.querySelectorAll('.param-toggle-checkbox');
+
+        checkboxes.forEach(chk => {
+            chk.addEventListener('change', function () {
+                const card = this.closest('.parametro-card');
+                const inputs = card.querySelectorAll('.param-field-input, .param-id-input');
+
+                if (this.checked) {
+                    inputs.forEach(el => el.disabled = false);
+                } else {
+                    inputs.forEach(el => {
+                        el.disabled = true;
+                        if (el.tagName === 'INPUT' && el.type !== 'hidden') el.value = '';
+                        if (el.tagName === 'SELECT') el.value = '';
+                    });
+                }
+            });
+        });
+    });
+
+    function gerarPDF() {
+        // Redirecionar para view que gera PDF
+        window.location.href = "{% url 'relatorio_pdf' relatorio.id %}";
+    }
+</script>
+{% endblock %}

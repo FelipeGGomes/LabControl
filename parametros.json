@@ -1,0 +1,155 @@
+[
+  {
+    "nome": "TEMPERATURA (°C)"
+  },
+  {
+    "nome": "COR VERDADEIRA (mg/L Pt-Co)"
+  },
+  {
+    "nome": "COR APARENTE (mg/L Pt-Co)"
+  },
+  {
+    "nome": "TURBIDEZ (NTU)"
+  },
+  {
+    "nome": "PH"
+  },
+  {
+    "nome": "CONDUTIVIDADE ELETRICA (uS/cm)"
+  },
+  {
+    "nome": "SOLIDOS DISSOLVIDOS TOTAIS (mg/L)"
+  },
+  {
+    "nome": "SALINIDADE (ppt)"
+  },
+  {
+    "nome": "OXIGENIO DISSOLVIDO (mg/L O2)"
+  },
+  {
+    "nome": "DBO5.20 (mg/L O2)"
+  },
+  {
+    "nome": "DQO (mg/L O2)"
+  },
+  {
+    "nome": "COLIFORMES TERMOTOL. (UFC/100 mL)"
+  },
+  {
+    "nome": "SOLIDOS DECANTAVEIS (mL/L/h)"
+  },
+  {
+    "nome": "SOLIDOS TOTAIS (ppm)"
+  },
+  {
+    "nome": "SOLIDOS FIXOS (ppm)"
+  },
+  {
+    "nome": "SOLIDOS VOLATEIS (ppm)"
+  },
+  {
+    "nome": "ALCALINIDADE TOTAL (mg/L CaCO3)"
+  },
+  {
+    "nome": "ACIDEZ TOTAL (mg/L CaCO3)"
+  },
+  {
+    "nome": "DUREZA TOTAL (mg/L CaCO3)"
+  },
+  {
+    "nome": "ALUMINIO DISSOLVIDO (mg/L Al)"
+  },
+  {
+    "nome": "ARSENIO TOTAL (mg/L As)"
+  },
+  {
+    "nome": "BORO TOTAL (mg/L B)"
+  },
+  {
+    "nome": "CADMIO TOTAL (mg/L Cd)"
+  },
+  {
+    "nome": "CALCIO TOTAL (mg/L Ca)"
+  },
+  {
+    "nome": "CHUMBO TOTAL (mg/L Pb)"
+  },
+  {
+    "nome": "CIANETO LIVRE (mg/L CN)"
+  },
+  {
+    "nome": "CIANETO TOTAL (mg/L CN)"
+  },
+  {
+    "nome": "CLORETO TOTAL (mg/L Cl)"
+  },
+  {
+    "nome": "CLORO RESIDUAL TOTAL (mg/L Cl)"
+  },
+  {
+    "nome": "COBRE TOTAL (mg/L Cu)"
+  },
+  {
+    "nome": "COBRE DISSOLVIDO (mg/L Cu)"
+  },
+  {
+    "nome": "CROMO TOTAL (mg/L Cr)"
+  },
+  {
+    "nome": "CROMO TRIVALENTE (mg/L Cr3)"
+  },
+  {
+    "nome": "CROMO HEXAVALENTE (mg/L Cr6)"
+  },
+  {
+    "nome": "FENOIS TOTAIS (mg/L C6H5OH)"
+  },
+  {
+    "nome": "FERRO DISSOLVIDO (mg/L Fe)"
+  },
+  {
+    "nome": "FOSFORO TOTAL (mg/L P)"
+  },
+  {
+    "nome": "MAGNESIO TOTAL (mg/L Mg)"
+  },
+  {
+    "nome": "MANGANES TOTAL (mg/L Mn)"
+  },
+  {
+    "nome": "MANGANES DISSOLVIDO (mg/L Mn)"
+  },
+  {
+    "nome": "NIQUEL TOTAL (mg/L Ni)"
+  },
+  {
+    "nome": "NITRATO (mg/L N)"
+  },
+  {
+    "nome": "NITRITO (mg/L N)"
+  },
+  {
+    "nome": "NITROGENIO AMONIACAL (mg/L N)"
+  },
+  {
+    "nome": "NITROGENIO TOTAL (mg/L N)"
+  },
+  {
+    "nome": "ORTOFOSFATO (mg/L PO4)"
+  },
+  {
+    "nome": "SILICA (mg/L SiO2)"
+  },
+  {
+    "nome": "SODIO DISSOLVIDO (mg/L Na)"
+  },
+  {
+    "nome": "SULFATO TOTAL (mg/L SO4)"
+  },
+  {
+    "nome": "SULFETO (mg/L S)"
+  },
+  {
+    "nome": "ZINCO TOTAL (mg/L Zn)"
+  }
+]

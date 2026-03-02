@@ -1,0 +1,707 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LabDash · Análises{% endblock %}</title>
+    <!-- Fonte e ícones -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #f4f7fc;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Layout base com sidebar flexível */
+        .app-container {
+            display: flex;
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.25s ease;
+            border-right: 1px solid #e9eef2;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar.collapsed {
+            width: 72px;
+        }
+
+        .sidebar-header {
+            padding: 24px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #edf2f6;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .logo-icon {
+            background: #1a5c9e;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .logo-text {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #1e293b;
+            letter-spacing: 0.3px;
+        }
+
+        .sidebar.collapsed .logo-text {
+            display: none;
+        }
+
+        .toggle-btn {
+            background: transparent;
+            border: none;
+            color: #5e6f88;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+
+        .toggle-btn:hover {
+            background: #f1f5f9;
+        }
+
+        /* Menu de navegação */
+        .nav-menu {
+            flex: 1;
+            padding: 20px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            color: #40566e;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.15s;
+            cursor: pointer;
+            white-space: nowrap;
+            text-decoration: none;
+        }
+
+        .nav-item i {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
+            color: #567394;
+        }
+
+        .nav-item:hover {
+            background: #eaf1fa;
+            color: #1a5c9e;
+        }
+
+        .nav-item.active {
+            background: #e1ebf7;
+            color: #0b3b6b;
+            font-weight: 600;
+        }
+
+        .nav-item.active i {
+            color: #1a5c9e;
+        }
+
+        .sidebar.collapsed .nav-item span {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-item {
+            justify-content: center;
+            padding: 12px 0;
+        }
+
+        /* Rodapé da sidebar (perfil) */
+        .user-info {
+            padding: 20px 16px;
+            border-top: 1px solid #eef3f8;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            background: #cbdbe9;
+            border-radius: 10px;
+            background-image: url('https://ui-avatars.com/api/?name=Ana+Oliveira&background=1a5c9e&color=fff&bold=true&size=38');
+            background-size: cover;
+            flex-shrink: 0;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.85rem;
+            overflow: hidden;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .user-role {
+            color: #687e9c;
+        }
+
+        .sidebar.collapsed .user-details {
+            display: none;
+        }
+
+        /* Conteúdo principal */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            background-color: #f8fafd;
+        }
+
+        /* Topbar */
+        .topbar {
+            background: white;
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e7ecf2;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .page-title h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e2f44;
+        }
+
+        .page-title .breadcrumb {
+            font-size: 0.85rem;
+            color: #6f8aac;
+            margin-top: 4px;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .search-box {
+            background: #f3f6fb;
+            border-radius: 40px;
+            padding: 8px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #dde5ed;
+        }
+
+        .search-box i {
+            color: #8da1bb;
+            font-size: 0.95rem;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 0.9rem;
+            width: 200px;
+        }
+
+        .notification-badge {
+            position: relative;
+            font-size: 1.3rem;
+            color: #456f9c;
+            cursor: pointer;
+        }
+
+        /* Área de conteúdo com cards e tabelas */
+        .content-wrapper {
+            padding: 28px 32px;
+            overflow-y: auto;
+        }
+
+        /* Cards de estatística */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 22px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 22px 20px;
+            box-shadow: 0 8px 20px -6px rgba(0, 42, 76, 0.1);
+            border: 1px solid #eef2f6;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            background: #e2edfc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1a5c9e;
+            font-size: 1.8rem;
+        }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #0f2b44;
+        }
+
+        .stat-info p {
+            color: #4b6684;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Seções de análise */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 32px 0 18px 0;
+        }
+
+        .section-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1e2f44;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #b9cfec;
+            padding: 8px 16px;
+            border-radius: 30px;
+            color: #1e3f66;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-outline:hover {
+            background: #e1ebf7;
+            border-color: #7fa3cc;
+        }
+
+        /* Tabela de balneabilidade */
+        .table-container {
+            background: white;
+            border-radius: 24px;
+            padding: 4px 6px 6px 6px;
+            box-shadow: 0 6px 18px rgba(0, 35, 70, 0.04);
+            border: 1px solid #e3eaf2;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th {
+            text-align: left;
+            padding: 18px 16px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #4d6a8c;
+            background: #f8fbfe;
+            border-bottom: 1px solid #dde5f0;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #e9eef5;
+            color: #1e364f;
+            font-size: 0.95rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .propria {
+            background: #d7f0dd;
+            color: #14633b;
+        }
+
+        .impropria {
+            background: #ffe2de;
+            color: #ac2e1b;
+        }
+
+        .analise {
+            background: #e2eafd;
+            color: #1f5092;
+        }
+
+        .action-icons i {
+            margin: 0 6px;
+            color: #748fb0;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .action-icons i:hover {
+            color: #1a5c9e;
+        }
+
+        /* Cards para outras análises */
+        .analises-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 22px;
+            margin-top: 10px;
+        }
+
+        .analise-card {
+            background: white;
+            border-radius: 20px;
+            padding: 18px;
+            box-shadow: 0 4px 14px rgba(0, 32, 64, 0.04);
+            border: 1px solid #e2eaf2;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h4 {
+            font-weight: 600;
+            color: #153558;
+        }
+
+        .card-tag {
+            background: #e1e9f3;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #1f4a7a;
+        }
+
+        .card-detail {
+            display: flex;
+            gap: 16px;
+            color: #4f6c8f;
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+
+        .card-detail i {
+            width: 18px;
+            color: #3f6b9c;
+        }
+
+        .progresso {
+            background: #ecf3fa;
+            height: 6px;
+            border-radius: 10px;
+            margin: 10px 0 4px;
+        }
+
+        .progresso-bar {
+            width: 70%;
+            height: 6px;
+            background: #1a5c9e;
+            border-radius: 10px;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                z-index: 1000;
+                height: 100%;
+                width: 240px;
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                width: 100%;
+            }
+
+            .topbar {
+                padding: 16px;
+            }
+
+            .content-wrapper {
+                padding: 20px 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-area">
+                    <span class="logo-icon">L</span>
+                    <span class="logo-text">LabControl</span>
+                </div>
+                <button class="toggle-btn" id="toggleSidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="{% url 'index' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'index' %}active{% endif %}">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'analises' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'analises' %}active{% endif %}">
+                    <i class="fas fa-flask"></i>
+                    <span>Análises</span>
+                </a>
+                <a href="{% url 'cadastro_parametro' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'cadastro_parametro' %}active{% endif %}">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Parâmetros</span>
+                </a>
+                <a href="{% url 'relatorio' %}" class="nav-item {% if request.resolver_match.url_name == 'relatorio' %}active{% endif %}">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Relatórios</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-balance-scale"></i>
+                    <span>Balanços</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-users-cog"></i>
+                    <span>Cadastros</span>
+                </a>
+            </nav>
+
+            <div class="user-info">
+                <div class="avatar"></div>
+                <div class="user-details">
+                    <span class="user-name">Ana Oliveira</span>
+                    <span class="user-role">Coordenadora</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="page-title">
+                    {% block page_header %}
+                    <h1>Análises de Balneabilidade</h1>
+                    <div class="breadcrumb">Dashboard / Balneabilidade / Praias</div>
+                    {% endblock %}
+                </div>
+                <div class="topbar-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Buscar análises...">
+                    </div>
+                    <div class="notification-badge">
+                        <i class="far fa-bell"></i>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Área de Mensagens de Sucesso/Erro -->
+                {% if messages %}
+                <div class="messages-container" style="margin-bottom: 24px;">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}"
+                        style="padding: 16px 20px; border-radius: 12px; margin-bottom: 12px; font-weight: 500; display: flex; align-items: center; gap: 12px; font-size: 0.95rem; {% if message.tags == 'error' %}background-color: #fdf2f2; color: #b71d18; border: 1px solid #f9dada;{% elif message.tags == 'success' %}background-color: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;{% else %}background-color: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;{% endif %}">
+                        {% if message.tags == 'error' %}
+                        <i class="fas fa-exclamation-circle" style="font-size: 1.2rem;"></i>
+                        {% elif message.tags == 'success' %}
+                        <i class="fas fa-check-circle" style="font-size: 1.2rem;"></i>
+                        {% else %}
+                        <i class="fas fa-info-circle" style="font-size: 1.2rem;"></i>
+                        {% endif %}
+                        <span>{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% block content %}
+                <!-- O conteúdo específico de cada página (cards, tabelas, etc) entrará aqui -->
+                {% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- JavaScript para interatividade da sidebar -->
+    <script>
+        (function () {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('toggleSidebar');
+            const icon = toggleBtn.querySelector('i');
+
+            // Alternar recolhimento da sidebar no desktop
+            toggleBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                sidebar.classList.toggle('collapsed');
+                if (sidebar.classList.contains('collapsed')) {
+                    icon.classList.remove('fa-chevron-left');
+                    icon.classList.add('fa-chevron-right');
+                } else {
+                    icon.classList.remove('fa-chevron-right');
+                    icon.classList.add('fa-chevron-left');
+                }
+            });
+
+            // Comportamento para mobile: abrir/fechar com menu hamburger (adaptação)
+            // Podemos adicionar um botão flutuante para mobile, mas por simplicidade,
+            // um evento de toque no ícone toggle já funciona, mas deixamos consistente.
+            // Caso a largura seja < 768, o sidebar inicia escondido e o ícone vira "hamburger"
+            function handleResize() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('collapsed'); // reseta classe visual
+                    sidebar.classList.add('mobile-closed'); // usamos para controle
+                    // Ajuste manual se necessário: esconder por transform no CSS
+                    // Mas já temos regra @media que transform: translateX(-100%)
+                    // Precisamos garantir que o sidebar comece escondido no mobile
+                    // Para isso, podemos usar JS para adicionar classe
+                    if (!sidebar.classList.contains('mobile-open')) {
+                        sidebar.style.transform = 'translateX(-100%)';
+                    } else {
+                        sidebar.style.transform = 'translateX(0)';
+                    }
+                    // Troca ícone para hamburger
+                    icon.classList.remove('fa-chevron-left', 'fa-chevron-right');
+                    icon.classList.add('fa-bars');
+                } else {
+                    sidebar.style.transform = ''; // reseta inline
+                    sidebar.classList.remove('mobile-open', 'mobile-closed');
+                    // restaura ícone com base no estado collapsed
+                    if (sidebar.classList.contains('collapsed')) {
+                        icon.classList.remove('fa-chevron-left', 'fa-bars');
+                        icon.classList.add('fa-chevron-right');
+                    } else {
+                        icon.classList.remove('fa-chevron-right', 'fa-bars');
+                        icon.classList.add('fa-chevron-left');
+                    }
+                }
+            }
+
+            window.addEventListener('resize', handleResize);
+            handleResize();
+
+            // No mobile, toggle abre/fecha
+            toggleBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                if (window.innerWidth <= 768) {
+                    // mobile: abre/fecha sidebar (overlay)
+                    if (sidebar.style.transform === 'translateX(0px)' || sidebar.classList.contains('mobile-open')) {
+                        sidebar.style.transform = 'translateX(-100%)';
+                        sidebar.classList.remove('mobile-open');
+                    } else {
+                        sidebar.style.transform = 'translateX(0)';
+                        sidebar.classList.add('mobile-open');
+                    }
+                } else {
+                    // desktop: comportamento normal de collapse
+                    sidebar.classList.toggle('collapsed');
+                    if (sidebar.classList.contains('collapsed')) {
+                        icon.classList.remove('fa-chevron-left');
+                        icon.classList.add('fa-chevron-right');
+                    } else {
+                        icon.classList.remove('fa-chevron-right');
+                        icon.classList.add('fa-chevron-left');
+                    }
+                }
+            });
+        })();
+    </script>
+
+</body>
+
+</html>

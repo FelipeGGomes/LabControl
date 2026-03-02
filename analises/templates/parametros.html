@@ -1,0 +1,111 @@
+{% extends 'index.html' %}
+
+{% block title %}Parâmetros · LabDash{% endblock %}
+
+{% block page_header %}
+<h1>Parâmetros</h1>
+<div class="breadcrumb">Dashboard / Parâmetros / Cadastro</div>
+{% endblock %}
+
+{% block content %}
+<div class="stats-grid" style="grid-template-columns: 1fr;"> <!-- apenas um card -->
+    <div class="stat-card" style="padding: 28px;">
+        <div style="width: 100%;">
+            <h2 style="font-size: 1.5rem; margin-bottom: 24px; color: #1e2f44;">
+                {% if parametro_em_edicao %}Editar parâmetro{% else %}Cadastrar novo parâmetro{% endif %}
+            </h2>
+            <form method="post"
+                action="{% if parametro_em_edicao %}{% url 'editar_parametro' parametro_em_edicao.id %}{% else %}{% url 'cadastro_parametro' %}{% endif %}"
+                style="display: flex; flex-direction: column; gap: 20px;">
+                {% csrf_token %}
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label for="nome" style="font-weight: 600; color: #2c3f5c;">Nome do Parâmetro:</label>
+                    <input type="text" id="nome" name="nome" required value="{{ parametro_em_edicao.nome|default:'' }}"
+                        style="padding: 14px 16px; border: 1px solid #d0ddee; border-radius: 14px; font-size: 1rem; background: #f9fcff;">
+                </div>
+                <div style="display: flex; gap: 16px; margin-top: 12px;">
+                    <button type="submit" class="btn-outline"
+                        style="background: #1a5c9e; color: white; border: none; padding: 12px 28px; border-radius: 30px; font-weight: 600; cursor: pointer;">
+                        {% if parametro_em_edicao %}<i class="fas fa-save"></i> Atualizar{% else %}<i
+                            class="fas fa-plus"></i> Salvar{% endif %}
+                    </button>
+                    <a href="{% url 'cadastro_parametro' %}" class="btn-outline"
+                        style="background: transparent; border: 1px solid #b9cfec; padding: 12px 28px; border-radius: 30px; color: #1e3f66; text-decoration: none;">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="section-header" style="margin-top: 40px;">
+    <h2>Parâmetros existentes</h2>
+    <button class="btn-outline" onclick="alert('Exportar em desenvolvimento')">
+        <i class="fas fa-download"></i> Exportar
+    </button>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Nome do Parâmetro</th>
+                <th>Data de cadastro</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for parametro in parametros %}
+            <tr>
+                <td><strong>{{ parametro.nome }}</strong></td>
+                <td>{{ parametro.criado_em|date:"d/m/Y" }}</td>
+                <td class="action-icons" style="display: flex; align-items: center; gap: 10px;">
+                    <a href="{% url 'editar_parametro' parametro.id %}" style="color: inherit; text-decoration: none;">
+                        <i class="fas fa-edit" title="Editar"></i>
+                    </a>
+                    <form method="post" action="{% url 'excluir_parametro' parametro.id %}" style="display: inline;"
+                        onsubmit="return confirm('Tem certeza que deseja excluir este parâmetro?');">
+                        {% csrf_token %}
+                        <button type="submit" style="background: none; border: none; cursor: pointer;">
+                            <i class="fas fa-trash-alt" title="Excluir" style="color: #b33;"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" style="text-align: center; color: #6f8aac;">Nenhum parâmetro cadastrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Paginação -->
+    <div style="display: flex; justify-content: flex-end; padding: 16px; align-items: center; gap: 8px;">
+        {% if parametros.has_previous %}
+        <a href="?page={{ parametros.previous_page_number }}"
+            style="padding: 6px 12px; border: 1px solid #d0ddee; border-radius: 8px; color: #1e3f66; text-decoration: none; font-size: 0.9rem;">&laquo;
+            Anterior</a>
+        {% else %}
+        <span
+            style="padding: 6px 12px; border: 1px solid #e1ebf7; border-radius: 8px; color: #a5b8ce; font-size: 0.9rem; cursor: not-allowed;">&laquo;
+            Anterior</span>
+        {% endif %}
+
+        <span style="font-size: 0.9rem; color: #6f8aac;">
+            Página {{ parametros.number|default:"1" }} de {{ parametros.paginator.num_pages|default:"1" }}
+        </span>
+
+        {% if parametros.has_next %}
+        <a href="?page={{ parametros.next_page_number }}"
+            style="padding: 6px 12px; border: 1px solid #d0ddee; border-radius: 8px; color: #1e3f66; text-decoration: none; font-size: 0.9rem;">Próxima
+            &raquo;</a>
+        {% else %}
+        <span
+            style="padding: 6px 12px; border: 1px solid #e1ebf7; border-radius: 8px; color: #a5b8ce; font-size: 0.9rem; cursor: not-allowed;">Próxima
+            &raquo;</span>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

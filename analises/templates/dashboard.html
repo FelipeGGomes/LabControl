@@ -1,0 +1,161 @@
+{% extends 'index.html' %}
+
+{% block title %}Dashboard · LabDash{% endblock %}
+
+{% block page_header %}
+<h1>Análises CMA</h1>
+<div class="breadcrumb">Dashboard das Análises</div>
+{% endblock %}
+
+{% block content %}
+<!-- Cards de resumo -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-map-marked-alt"></i></div>
+        <div class="stat-info">
+            <h3>12</h3>
+            <p>Pontos monitorados</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-info">
+            <h3>8</h3>
+            <p>Próprias</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <div class="stat-info">
+            <h3>4</h3>
+            <p>Impróprias</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+        <div class="stat-info">
+            <h3>22</h3>
+            <p>Outras análises</p>
+        </div>
+    </div>
+</div>
+
+<!-- Tabela de Balneabilidade -->
+<div class="section-header">
+    <h2>Praias monitoradas · última coleta</h2>
+    <button class="btn-outline"><i class="fas fa-plus"></i> Nova coleta</button>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Praia</th>
+                <th>Município</th>
+                <th>Data da coleta</th>
+                <th>Coliformes (NMP/100mL)</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Praia do Futuro</strong></td>
+                <td>Fortaleza</td>
+                <td>15/02/2025</td>
+                <td>220</td>
+                <td><span class="status-badge propria">Própria</span></td>
+                <td class="action-icons">
+                    <i class="fas fa-eye" title="Visualizar"></i>
+                    <i class="fas fa-edit" title="Editar"></i>
+                    <i class="fas fa-file-pdf" title="Relatório"></i>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Iracema</strong></td>
+                <td>Fortaleza</td>
+                <td>15/02/2025</td>
+                <td>980</td>
+                <td><span class="status-badge impropria">Imprópria</span></td>
+                <td class="action-icons">
+                    <i class="fas fa-eye"></i>
+                    <i class="fas fa-edit"></i>
+                    <i class="fas fa-file-pdf"></i>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Praia do Meireles</strong></td>
+                <td>Fortaleza</td>
+                <td>14/02/2025</td>
+                <td>150</td>
+                <td><span class="status-badge propria">Própria</span></td>
+                <td class="action-icons">
+                    <i class="fas fa-eye"></i>
+                    <i class="fas fa-edit"></i>
+                    <i class="fas fa-file-pdf"></i>
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Caponga</strong></td>
+                <td>Cascavel</td>
+                <td>13/02/2025</td>
+                <td>1250</td>
+                <td><span class="status-badge impropria">Imprópria</span></td>
+                <td class="action-icons">
+                    <i class="fas fa-eye"></i>
+                    <i class="fas fa-edit"></i>
+                    <i class="fas fa-file-pdf"></i>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Outras análises laboratoriais -->
+<div class="section-header">
+    <h2>Outras análises em andamento</h2>
+    <button class="btn-outline"><i class="fas fa-filter"></i> Filtrar</button>
+</div>
+
+<div class="analises-grid">
+    <div class="analise-card">
+        <div class="card-header">
+            <h4>Água - ETA Norte</h4>
+            <span class="card-tag">Físico-química</span>
+        </div>
+        <div class="card-detail"><i class="fas fa-calendar"></i> 18/02/2025</div>
+        <div class="card-detail"><i class="fas fa-flask"></i> pH, Cloro, Turbidez</div>
+        <div class="progresso">
+            <div class="progresso-bar" style="width: 100%;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #1a5c9e;">
+            <span>Concluída</span> <i class="fas fa-download"></i></div>
+    </div>
+    <div class="analise-card">
+        <div class="card-header">
+            <h4>Efluente - Frigorífico</h4>
+            <span class="card-tag">Microbiológica</span>
+        </div>
+        <div class="card-detail"><i class="fas fa-calendar"></i> 17/02/2025</div>
+        <div class="card-detail"><i class="fas fa-flask"></i> Coliformes totais, E. coli</div>
+        <div class="progresso">
+            <div class="progresso-bar" style="width: 45%;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;"><span>Em análise</span>
+            <span>45%</span></div>
+    </div>
+    <div class="analise-card">
+        <div class="card-header">
+            <h4>Solo - Lote 42</h4>
+            <span class="card-tag">Metais pesados</span>
+        </div>
+        <div class="card-detail"><i class="fas fa-calendar"></i> 16/02/2025</div>
+        <div class="card-detail"><i class="fas fa-flask"></i> Chumbo, Cádmio, Mercúrio</div>
+        <div class="progresso">
+            <div class="progresso-bar" style="width: 70%;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;"><span>Em andamento</span>
+            <span>70%</span></div>
+    </div>
+</div>
+{% endblock %}
