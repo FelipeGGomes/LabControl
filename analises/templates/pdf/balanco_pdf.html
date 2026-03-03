@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -151,21 +152,25 @@
 
 <body>
     <!-- Cabeçalho -->
-    <div class="header" style="width: 100%;">
-        <table style="width: 100%;">
-            <tr>
-                <td style="width: 60%;">
-                    <div style="font-size: 24px; font-weight: bold; color: #1a5c9e;">LabControl</div>
-                    <div style="font-size: 12px; color: #555;">Laboratório de Análises</div>
+    <table class="header-table">
+        <tr>
+            <td style="width: 100px; padding-right: 2px; vertical-align: middle;">
+                <img src="{% static 'image/sudema_logo.png' %}" 
+                    style="width: 100px; height: 100px;" 
+                    alt="Logo">
+                </td>               
+                <td style="vertical-align: middle;">
+                    <strong style="font-size: 16px;">SUDEMA</strong><br>
+                    <span style="font-size: 11px; color: #555;">
+                        Superintendência de Administração do Meio Ambiente
+                    </span>
                 </td>
-                <td style="width: 40%; text-align: right; font-size: 12px; color: #555;">
-                    <strong style="font-size: 16px; color: #1a5c9e;">BALANÇO MENSAL</strong><br>
-                    Emissão: {% now "d/m/Y H:i" %}<br>
-                    Período: {{ mes_referencia }}
-                </td>
-            </tr>
-        </table>
-    </div>
+            <td style="text-align: right; font-size: 11px; vertical-align: middle;">
+                <strong>LabControl - BALANÇO MENSAL</strong><br>
+                Período: {{ mes_referencia }} | Emissão: {% now "d/m/Y H:i" %}
+            </td>
+        </tr>
+    </table>
 
     <!-- Título -->
     <div class="titulo">
@@ -232,10 +237,10 @@
             {% for item in balanco %}
             <tr>
                 <td><strong>{{ item.parametro_nome }}</strong></td>
-                <td style="text-align: center;">{{ item.quantidade }}</td>
-                <td style="text-align: center;">{{ item.media|floatformat:2 }}</td>
-                <td style="text-align: center;">{{ item.minimo|floatformat:2 }}</td>
-                <td style="text-align: center;">{{ item.maximo|floatformat:2 }}</td>
+                <td style="text-align: left;">{{ item.quantidade }}</td>
+                <td style="text-align: left;">{{ item.media|floatformat:2 }}</td>
+                <td style="text-align: left;">{{ item.minimo|floatformat:2 }}</td>
+                <td style="text-align: left;">{{ item.maximo|floatformat:2 }}</td>
                 <td>{{ item.unidade }}</td>
             </tr>
             {% empty %}
@@ -279,6 +284,7 @@
                 </tbody>
             </table>
         </div>
+        <br>
 
         <!-- Card Açude -->
         <div
@@ -290,24 +296,25 @@
             <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
                 <thead>
                     <tr style="background: #e6f2e9; border-bottom: 1px solid #c0dbc6;">
-                        <th style="padding: 12px 12px; text-align: left; color: #2d6a4f; font-weight: 600;">Lote</th>
-                        <th style="padding: 12px 12px; text-align: right; color: #2d6a4f; font-weight: 600;">Total</th>
+                        <th style="padding: 12px; text-align: left; color: #2d6a4f; font-weight: 600;">Lote</th>
+                        <th style="padding: 12px; text-align: right; color: #2d6a4f; font-weight: 600;">Total</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for item in lotes_acude %}
                     <tr style="border-bottom: 1px solid #eef3f8;">
-                        <td style="padding: 10px 12px;">{{ item.lote }}</td>
-                        <td style="padding: 10px 12px; text-align: right; font-weight: 500;">{{ item.total }}</td>
+                        <td style="padding: 12px;">{{ item.lote }}</td>
+                        <td style="padding: 12px; text-align: right; font-weight: 500;">{{ item.total }}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="2" style="padding: 20px; text-align: center; color: #8a9cb0;">Nenhum lote</td>
+                        <td colspan="2" style="padding: 10px; text-align: center; color: #8a9cb0;">Nenhum lote</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        <br>
 
         <!-- Card Rio -->
         <div

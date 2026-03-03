@@ -484,6 +484,31 @@
             border-radius: 10px;
         }
 
+        /* Botão Mobile Header */
+        .mobile-menu-btn {
+            display: none;
+            background: transparent;
+            border: none;
+            color: #1e2f44;
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 4px 12px 4px 0;
+        }
+
+        /* Overlay do Sidebar no Mobile */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
         /* Responsividade */
         @media (max-width: 768px) {
             .sidebar {
@@ -497,6 +522,15 @@
 
             .sidebar.mobile-open {
                 transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+                opacity: 1;
+            }
+
+            .mobile-menu-btn {
+                display: block;
             }
 
             .main-content {
@@ -520,6 +554,9 @@
 
 <body>
     <div class="app-container">
+        <!-- Overlay Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
         <!-- SIDEBAR -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -572,19 +609,15 @@
         <!-- MAIN -->
         <main class="main-content">
             <header class="topbar">
-                <div class="page-title">
-                    {% block page_header %}
-                    <h1>Análises de Balneabilidade</h1>
-                    <div class="breadcrumb">Dashboard / Balneabilidade / Praias</div>
-                    {% endblock %}
-                </div>
-                <div class="topbar-actions">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Buscar análises...">
-                    </div>
-                    <div class="notification-badge">
-                        <i class="far fa-bell"></i>
+                <div style="display: flex; align-items: center;">
+                    <button id="mobileMenuBtn" class="mobile-menu-btn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="page-title">
+                        {% block page_header %}
+                        <h1>Análises de Balneabilidade</h1>
+                        <div class="breadcrumb">Dashboard / Balneabilidade / Praias</div>
+                        {% endblock %}
                     </div>
                 </div>
             </header>
@@ -622,71 +655,33 @@
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('toggleSidebar');
             const icon = toggleBtn.querySelector('i');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            // Abrir Sidebar Menu Mobile via Topbar (Hamburger)
+            if (mobileMenuBtn) {
+                mobileMenuBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    sidebar.style.transform = 'translateX(0)';
+                    sidebar.classList.add('mobile-open');
+                    sidebarOverlay.classList.add('active');
+                });
+            }
+
+            // Fechar Sidebar Mobile ao clicar no overlay escuro
+            if (sidebarOverlay) {
+                sidebarOverlay.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    sidebar.style.transform = 'translateX(-100%)';
+                    sidebar.classList.remove('mobile-open');
+                    sidebarOverlay.classList.remove('active');
+                });
+            }
 
             // Alternar recolhimento da sidebar no desktop
             toggleBtn.addEventListener('click', function (e) {
                 e.preventDefault();
-                sidebar.classList.toggle('collapsed');
-                if (sidebar.classList.contains('collapsed')) {
-                    icon.classList.remove('fa-chevron-left');
-                    icon.classList.add('fa-chevron-right');
-                } else {
-                    icon.classList.remove('fa-chevron-right');
-                    icon.classList.add('fa-chevron-left');
-                }
-            });
-
-            // Comportamento para mobile: abrir/fechar com menu hamburger (adaptação)
-            // Podemos adicionar um botão flutuante para mobile, mas por simplicidade,
-            // um evento de toque no ícone toggle já funciona, mas deixamos consistente.
-            // Caso a largura seja < 768, o sidebar inicia escondido e o ícone vira "hamburger"
-            function handleResize() {
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove('collapsed'); // reseta classe visual
-                    sidebar.classList.add('mobile-closed'); // usamos para controle
-                    // Ajuste manual se necessário: esconder por transform no CSS
-                    // Mas já temos regra @media que transform: translateX(-100%)
-                    // Precisamos garantir que o sidebar comece escondido no mobile
-                    // Para isso, podemos usar JS para adicionar classe
-                    if (!sidebar.classList.contains('mobile-open')) {
-                        sidebar.style.transform = 'translateX(-100%)';
-                    } else {
-                        sidebar.style.transform = 'translateX(0)';
-                    }
-                    // Troca ícone para hamburger
-                    icon.classList.remove('fa-chevron-left', 'fa-chevron-right');
-                    icon.classList.add('fa-bars');
-                } else {
-                    sidebar.style.transform = ''; // reseta inline
-                    sidebar.classList.remove('mobile-open', 'mobile-closed');
-                    // restaura ícone com base no estado collapsed
-                    if (sidebar.classList.contains('collapsed')) {
-                        icon.classList.remove('fa-chevron-left', 'fa-bars');
-                        icon.classList.add('fa-chevron-right');
-                    } else {
-                        icon.classList.remove('fa-chevron-right', 'fa-bars');
-                        icon.classList.add('fa-chevron-left');
-                    }
-                }
-            }
-
-            window.addEventListener('resize', handleResize);
-            handleResize();
-
-            // No mobile, toggle abre/fecha
-            toggleBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                if (window.innerWidth <= 768) {
-                    // mobile: abre/fecha sidebar (overlay)
-                    if (sidebar.style.transform === 'translateX(0px)' || sidebar.classList.contains('mobile-open')) {
-                        sidebar.style.transform = 'translateX(-100%)';
-                        sidebar.classList.remove('mobile-open');
-                    } else {
-                        sidebar.style.transform = 'translateX(0)';
-                        sidebar.classList.add('mobile-open');
-                    }
-                } else {
-                    // desktop: comportamento normal de collapse
+                if (window.innerWidth > 768) {
                     sidebar.classList.toggle('collapsed');
                     if (sidebar.classList.contains('collapsed')) {
                         icon.classList.remove('fa-chevron-left');
@@ -695,11 +690,43 @@
                         icon.classList.remove('fa-chevron-right');
                         icon.classList.add('fa-chevron-left');
                     }
+                } else {
+                    // Se o botão interno for clicado no mobile, a gente fecha a sidebar
+                    sidebar.style.transform = 'translateX(-100%)';
+                    sidebar.classList.remove('mobile-open');
+                    sidebarOverlay.classList.remove('active');
                 }
             });
+
+            // Reseta estilos limpos ao transicionar entre Mobile e Desktop
+            function handleResize() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('collapsed');
+                    if (!sidebar.classList.contains('mobile-open')) {
+                        sidebar.style.transform = 'translateX(-100%)';
+                        sidebarOverlay.classList.remove('active');
+                    }
+                    icon.classList.remove('fa-chevron-left', 'fa-chevron-right');
+                    icon.classList.add('fa-times'); // Botão interno vira o "X" de fechar
+                } else {
+                    sidebar.style.transform = '';
+                    sidebar.classList.remove('mobile-open');
+                    sidebarOverlay.classList.remove('active');
+                    if (sidebar.classList.contains('collapsed')) {
+                        icon.classList.remove('fa-chevron-left', 'fa-times');
+                        icon.classList.add('fa-chevron-right');
+                    } else {
+                        icon.classList.remove('fa-chevron-right', 'fa-times');
+                        icon.classList.add('fa-chevron-left');
+                    }
+                }
+            }
+
+            window.addEventListener('resize', handleResize);
+            handleResize();
+
         })();
     </script>
-
 </body>
 
 </html>
