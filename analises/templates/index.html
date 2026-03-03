@@ -544,31 +544,29 @@
                     <span>Análises</span>
                 </a>
                 <a href="{% url 'cadastro_parametro' %}"
-                    class="nav-item {% if request.resolver_match.url_name == 'cadastro_parametro' %}active{% endif %}">
+                    class="nav-item {% if request.resolver_match.url_name == 'cadastro_parametro' or request.resolver_match.url_name == 'editar_parametro' %}active{% endif %}">
                     <i class="fas fa-sliders-h"></i>
                     <span>Parâmetros</span>
                 </a>
-                <a href="{% url 'relatorio' %}" class="nav-item {% if request.resolver_match.url_name == 'relatorio' %}active{% endif %}">
+
+                <a href="{% url 'analistas' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'analistas' or request.resolver_match.url_name == 'editar_analista' %}active{% endif %}">
+                    <i class="fas fa-user-tag"></i>
+                    <span>Analistas</span>
+                </a>
+
+
+                <a href="{% url 'relatorio' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'relatorio' %}active{% endif %}">
                     <i class="fas fa-file-alt"></i>
                     <span>Relatórios</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="{% url 'balancos' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'balancos' %}active{% endif %}">
                     <i class="fas fa-balance-scale"></i>
                     <span>Balanços</span>
                 </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-users-cog"></i>
-                    <span>Cadastros</span>
-                </a>
             </nav>
-
-            <div class="user-info">
-                <div class="avatar"></div>
-                <div class="user-details">
-                    <span class="user-name">Ana Oliveira</span>
-                    <span class="user-role">Coordenadora</span>
-                </div>
-            </div>
         </aside>
 
         <!-- MAIN -->

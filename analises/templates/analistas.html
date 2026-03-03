@@ -1,0 +1,104 @@
+{% extends 'index.html' %}
+
+{% block title %}Analistas · LabDash{% endblock %}
+
+{% block page_header %}
+<h1>Analistas</h1>
+<div class="breadcrumb">Dashboard / Analistas / Cadastro</div>
+{% endblock %}
+
+{% block content %}
+<div class="stats-grid" style="grid-template-columns: 1fr;"> <!-- apenas um card -->
+    <div class="stat-card" style="padding: 28px;">
+        <div style="width: 100%;">
+            <h2 style="font-size: 1.5rem; margin-bottom: 24px; color: #1e2f44;">
+                Cadastrar novo analista
+            </h2>
+            <form method="post" action="{% url 'analistas' %}"
+                style="display: flex; flex-direction: column; gap: 20px;">
+                {% csrf_token %}
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <label for="nome" style="font-weight: 600; color: #2c3f5c;">Nome do Analista:</label>
+                    <input type="text" id="nome" name="nome" required value=""
+                        style="padding: 14px 16px; border: 1px solid #d0ddee; border-radius: 14px; font-size: 1rem; background: #f9fcff;">
+                </div>
+                <div style="display: flex; gap: 16px; margin-top: 12px;">
+                    <button type="submit" class="btn-outline"
+                        style="background: #1a5c9e; color: white; border: none; padding: 12px 28px; border-radius: 30px; font-weight: 600; cursor: pointer;">
+                        <i class="fas fa-plus"></i> Salvar
+                    </button>
+                    <a href="{% url 'analistas' %}" class="btn-outline"
+                        style="background: transparent; border: 1px solid #b9cfec; padding: 12px 28px; border-radius: 30px; color: #1e3f66; text-decoration: none;">
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="section-header" style="margin-top: 40px;">
+    <h2>Analistas cadastrados</h2>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Nome do Analista</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for analista in analistas %}
+            <tr>
+                <td><strong>{{ analista.nome }}</strong></td>
+                <td class="action-icons" style="display: flex; align-items: center; gap: 10px;">
+                    <a href="{% url 'editar_analista' analista.id %}" style="color: inherit; text-decoration: none;">
+                        <i class="fas fa-edit" title="Editar"></i>
+                    </a>
+                    <form method="post" action="{% url 'excluir_analista' analista.id %}" style="display: inline;"
+                        onsubmit="return confirm('Tem certeza que deseja excluir este analista?');">
+                        {% csrf_token %}
+                        <button type="submit" style="background: none; border: none; cursor: pointer;">
+                            <i class="fas fa-trash-alt" title="Excluir" style="color: #b33;"></i>
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2" style="text-align: center; color: #6f8aac;">Nenhum analista cadastrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Paginação -->
+    <div style="display: flex; justify-content: flex-end; padding: 16px; align-items: center; gap: 8px;">
+        {% if analistas.has_previous %}
+        <a href="?page={{ analistas.previous_page_number }}"
+            style="padding: 6px 12px; border: 1px solid #d0ddee; border-radius: 8px; color: #1e3f66; text-decoration: none; font-size: 0.9rem;">&laquo;
+            Anterior</a>
+        {% else %}
+        <span
+            style="padding: 6px 12px; border: 1px solid #e1ebf7; border-radius: 8px; color: #a5b8ce; font-size: 0.9rem; cursor: not-allowed;">&laquo;
+            Anterior</span>
+        {% endif %}
+
+        <span style="font-size: 0.9rem; color: #6f8aac;">
+            Página {{ analistas.number|default:"1" }} de {{ analistas.paginator.num_pages|default:"1" }}
+        </span>
+
+        {% if analistas.has_next %}
+        <a href="?page={{ analistas.next_page_number }}"
+            style="padding: 6px 12px; border: 1px solid #d0ddee; border-radius: 8px; color: #1e3f66; text-decoration: none; font-size: 0.9rem;">Próxima
+            &raquo;</a>
+        {% else %}
+        <span
+            style="padding: 6px 12px; border: 1px solid #e1ebf7; border-radius: 8px; color: #a5b8ce; font-size: 0.9rem; cursor: not-allowed;">Próxima
+            &raquo;</span>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

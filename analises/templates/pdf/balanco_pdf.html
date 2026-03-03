@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Balanço Mensal - {{ mes_referencia }}</title>
+    <style>
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #1a5c9e;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: #1a5c9e;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+
+        .lab-info {
+            text-align: right;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .lab-info strong {
+            font-size: 16px;
+            color: #1a5c9e;
+        }
+
+        .titulo {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .titulo h1 {
+            color: #1a5c9e;
+            font-size: 24px;
+            margin: 5px 0;
+        }
+
+        .titulo p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f5f9ff;
+            border: 1px solid #cde0f0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: #1a4b77;
+            margin: 0 0 5px 0;
+            font-size: 20px;
+        }
+
+        .stat-card p {
+            margin: 0;
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .tabela-parametros {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            margin-top: 15px;
+        }
+
+        .tabela-parametros th {
+            background: #1a5c9e;
+            color: white;
+            padding: 8px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .tabela-parametros td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        .tabela-parametros tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .rodape {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 10px;
+            color: #999;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+        }
+
+        @media print {
+            body {
+                padding: 0.5cm;
+            }
+
+            .header {
+                border-bottom-color: #000;
+            }
+
+            .titulo h1,
+            .stat-card h3 {
+                color: #000;
+            }
+
+            .tabela-parametros th {
+                background: #333;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Cabeçalho -->
+    <div class="header" style="width: 100%;">
+        <table style="width: 100%;">
+            <tr>
+                <td style="width: 60%;">
+                    <div style="font-size: 24px; font-weight: bold; color: #1a5c9e;">LabControl</div>
+                    <div style="font-size: 12px; color: #555;">Laboratório de Análises</div>
+                </td>
+                <td style="width: 40%; text-align: right; font-size: 12px; color: #555;">
+                    <strong style="font-size: 16px; color: #1a5c9e;">BALANÇO MENSAL</strong><br>
+                    Emissão: {% now "d/m/Y H:i" %}<br>
+                    Período: {{ mes_referencia }}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Título -->
+    <div class="titulo">
+        <h1>Resultados Consolidados</h1>
+        <p>Balanço analítico agregado pelo período, parâmetros e origens filtradas.</p>
+    </div>
+
+    <!-- Informações da Posição Atual -->
+    <table style="width: 100%; margin-bottom: 30px; border-spacing: 10px;">
+        <tr>
+            <td
+                style="background: #f5f9ff; border: 1px solid #cde0f0; border-radius: 8px; padding: 15px; text-align: center; width: 25%;">
+                <h3 style="color: #1a4b77; margin: 0 0 5px 0; font-size: 20px;">{{ total_analises|default:"0" }}</h3>
+                <p style="margin: 0; font-size: 11px; color: #666; text-transform: uppercase;">Análises no período</p>
+            </td>
+            <td
+                style="background: #f5f9ff; border: 1px solid #cde0f0; border-radius: 8px; padding: 15px; text-align: center; width: 25%;">
+                <h3 style="color: #1a4b77; margin: 0 0 5px 0; font-size: 20px;">{{ total_origens|default:"0" }}</h3>
+                <p style="margin: 0; font-size: 11px; color: #666; text-transform: uppercase;">Origens distintas</p>
+            </td>
+            <td
+                style="background: #f5f9ff; border: 1px solid #cde0f0; border-radius: 8px; padding: 15px; text-align: center; width: 25%;">
+                <h3 style="color: #1a4b77; margin: 0 0 5px 0; font-size: 20px;">{{ media_parametro|default:"0.0" }}</h3>
+                <p style="margin: 0; font-size: 11px; color: #666; text-transform: uppercase;">Média Global</p>
+            </td>
+            <td
+                style="background: #f5f9ff; border: 1px solid #cde0f0; border-radius: 8px; padding: 15px; text-align: center; width: 25%;">
+                <h3 style="color: #1a4b77; margin: 0 0 5px 0; font-size: 20px;">{{ mes_referencia|default:"--" }}</h3>
+                <p style="margin: 0; font-size: 11px; color: #666; text-transform: uppercase;">Mês referência</p>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Tabela de balanço -->
+    <table style="width: 100%; margin-bottom: 10px;">
+        <tr>
+            <td style="vertical-align: bottom;">
+                <h3 style="color: #1a4b77; margin: 0;">Métricas por Parâmetro</h3>
+            </td>
+            <td style="vertical-align: bottom; text-align: right; font-size: 11px; color: #555;">
+                <strong style="color: #333;">Filtros:</strong>
+                Origem: <em>{{ filtro_origem }}</em> &nbsp;|&nbsp;
+                Parâmetro: <em>{{ filtro_parametro }}</em> &nbsp;|&nbsp;
+                Tipo: <em>{{ filtro_tipo }}</em>
+            </td>
+        </tr>
+    </table>
+    <table class="tabela-parametros">
+        <thead>
+            <tr style="background-color: #1a5c9e; color: #ffffff;">
+                <th style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Parâmetro</th>
+                <th style="padding: 8px; font-weight: bold; border: 1px solid #ddd; text-align: center;">Quantidade de
+                    análises</th>
+                <th style="padding: 8px; font-weight: bold; border: 1px solid #ddd; text-align: center;">Valor médio
+                </th>
+                <th style="padding: 8px; font-weight: bold; border: 1px solid #ddd; text-align: center;">Valor mínimo
+                </th>
+                <th style="padding: 8px; font-weight: bold; border: 1px solid #ddd; text-align: center;">Valor máximo
+                </th>
+                <th style="padding: 8px; font-weight: bold; border: 1px solid #ddd;">Unidade</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in balanco %}
+            <tr>
+                <td><strong>{{ item.parametro_nome }}</strong></td>
+                <td style="text-align: center;">{{ item.quantidade }}</td>
+                <td style="text-align: center;">{{ item.media|floatformat:2 }}</td>
+                <td style="text-align: center;">{{ item.minimo|floatformat:2 }}</td>
+                <td style="text-align: center;">{{ item.maximo|floatformat:2 }}</td>
+                <td>{{ item.unidade }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: #999; padding: 20px;">Nenhum dado agregado encontrado
+                    para o período/filtro selecionado no sistema.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Lotes Balanço -->
+    <h3 style="color: #1a4b77; margin-bottom: 15px; margin-top: 30px;">Balanço de Lotes</h3>
+
+    <div style="display: flex; gap: 20px; justify-content: space-between; flex-wrap: wrap;">
+        <!-- Card Balneabilidade -->
+        <div
+            style="flex: 1; min-width: 200px; background: white; border-radius: 16px; box-shadow: 0 6px 16px rgba(0,35,70,0.08); border: 1px solid #e3eaf2; overflow: hidden;">
+            <div
+                style="background: #1a5c9e; color: white; padding: 14px 18px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-water" style="font-size: 16px;"></i> Lotes Balneabilidade
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                <thead>
+                    <tr style="background: #f0f6ff; border-bottom: 1px solid #d0ddee;">
+                        <th style="padding: 12px 12px; text-align: left; color: #1a5c9e; font-weight: 600;">Lote</th>
+                        <th style="padding: 12px 12px; text-align: right; color: #1a5c9e; font-weight: 600;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in lotes_balneabilidade %}
+                    <tr style="border-bottom: 1px solid #eef3f8;">
+                        <td style="padding: 10px 12px;">{{ item.lote }}</td>
+                        <td style="padding: 10px 12px; text-align: right; font-weight: 500;">{{ item.total }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" style="padding: 20px; text-align: center; color: #8a9cb0;">Nenhum lote</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Card Açude -->
+        <div
+            style="flex: 1; min-width: 200px; background: white; border-radius: 16px; box-shadow: 0 6px 16px rgba(0,35,70,0.08); border: 1px solid #e3eaf2; overflow: hidden;">
+            <div
+                style="background: #2d6a4f; color: white; padding: 14px 18px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-tint" style="font-size: 16px;"></i> Lotes Açude
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                <thead>
+                    <tr style="background: #e6f2e9; border-bottom: 1px solid #c0dbc6;">
+                        <th style="padding: 12px 12px; text-align: left; color: #2d6a4f; font-weight: 600;">Lote</th>
+                        <th style="padding: 12px 12px; text-align: right; color: #2d6a4f; font-weight: 600;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in lotes_acude %}
+                    <tr style="border-bottom: 1px solid #eef3f8;">
+                        <td style="padding: 10px 12px;">{{ item.lote }}</td>
+                        <td style="padding: 10px 12px; text-align: right; font-weight: 500;">{{ item.total }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" style="padding: 20px; text-align: center; color: #8a9cb0;">Nenhum lote</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Card Rio -->
+        <div
+            style="flex: 1; min-width: 200px; background: white; border-radius: 16px; box-shadow: 0 6px 16px rgba(0,35,70,0.08); border: 1px solid #e3eaf2; overflow: hidden;">
+            <div
+                style="background: #b9770e; color: white; padding: 14px 18px; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-river" style="font-size: 16px;"></i> Lotes Rio
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                <thead>
+                    <tr style="background: #fdf1e0; border-bottom: 1px solid #eed9b1;">
+                        <th style="padding: 12px 12px; text-align: left; color: #b9770e; font-weight: 600;">Lote</th>
+                        <th style="padding: 12px 12px; text-align: right; color: #b9770e; font-weight: 600;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in lotes_rio %}
+                    <tr style="border-bottom: 1px solid #eef3f8;">
+                        <td style="padding: 10px 12px;">{{ item.lote }}</td>
+                        <td style="padding: 10px 12px; text-align: right; font-weight: 500;">{{ item.total }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" style="padding: 20px; text-align: center; color: #8a9cb0;">Nenhum lote</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <div class="rodape">
+        Os resultados apresentados referem-se à uma agregação matemática do período e dos critérios selecionados.<br>
+        Superintendência de Administração do Meio Ambiente - CNPJ 08.329.849/0001-15 - protoco@sudema.pb.gov.br
+    </div>
+</body>
+
+</html>

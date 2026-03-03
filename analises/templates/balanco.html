@@ -1,0 +1,544 @@
+{% extends 'index.html' %}
+
+{% block title %}Balanços Mensais · LabDash{% endblock %}
+
+{% block page_header %}
+<h1>Balanços Mensais</h1>
+<div class="breadcrumb">Dashboard / Balanços</div>
+{% endblock %}
+
+{% block content %}
+<!-- Cards de resumo do balanço -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-flask"></i></div>
+        <div class="stat-info">
+            <h3>{{ total_analises|default:"0" }}</h3>
+            <p>Análises no período</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-map-marker-alt"></i></div>
+        <div class="stat-info">
+            <h3>{{ total_origens|default:"0" }}</h3>
+            <p>Origens distintas</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="stat-info">
+            <h3>{{ media_parametro|default:"0.0" }}</h3>
+            <p>Média (parâmetro selec.)</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+        <div class="stat-info">
+            <h3>{{ mes_referencia|default:"--" }}</h3>
+            <p>Mês referência</p>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros para balanço mensal -->
+<div class="filters-card">
+    <div class="filters-header">
+        <h3><i class="fas fa-filter"></i> Filtrar balanço mensal</h3>
+        <a href="{% url 'exportar_balanco' %}?mes={{ request.GET.mes }}&origem={{ request.GET.origem }}&parametro={{ request.GET.parametro }}&tipo={{ request.GET.tipo }}"
+            target="_blank" class="btn-outline">
+            <i class="fas fa-download"></i> Exportar
+        </a>
+    </div>
+    <form method="get" action="{% url 'balancos' %}" class="filters-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="mes">Mês/Ano</label>
+                <input type="month" id="mes" name="mes" value="{{ request.GET.mes }}" placeholder="YYYY-MM">
+            </div>
+            <div class="form-group">
+                <label for="origem">Origem</label>
+                <select id="origem" name="origem">
+                    <option value="">Todas</option>
+                    {% for o in origens %}
+                    <option value="{{ o.id }}">{{ o.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="parametro">Parâmetro</label>
+                <select id="parametro" name="parametro">
+                    <option value="">Todos</option>
+                    {% for o in origens %}
+                    <option value="{{ o.id }}">{{ o.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn-primary" style="margin-top: 24px;"><i class="fas fa-search"></i> Gerar
+                    balanço</button>
+                <a href="{% url 'balancos' %}" class="btn-outline" style="margin-top: 24px; padding: 12px 20px;"><i
+                        class="fas fa-times"></i> Limpar</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Tabela de balanço (resultados agregados) -->
+<div class="section-header" style="margin-top: 40px;">
+    <h2>Resultados Consolidados</h2>
+    <div class="actions">
+        <span class="badge-info"><i class="fas fa-info-circle"></i> Valores médios por parâmetro</span>
+    </div>
+</div>
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Parâmetro</th>
+                <th>Quantidade de análises</th>
+                <th>Valor médio</th>
+                <th>Valor mínimo</th>
+                <th>Valor máximo</th>
+                <th>Unidade</th>
+            </tr>
+        </thead>
+        <tbody id="balanco-tbody">
+            {% for item in balanco %}
+            <tr class="balanco-row">
+                <td><strong>{{ item.parametro_nome }}</strong></td>
+                <td>{{ item.quantidade }}</td>
+                <td>{{ item.media|floatformat:2 }}</td>
+                <td>{{ item.minimo|floatformat:2 }}</td>
+                <td>{{ item.maximo|floatformat:2 }}</td>
+                <td>{{ item.unidade }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: #6f8aac; padding: 20px;">Nenhum dado encontrado para o
+                    período selecionado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Controles de Paginação -->
+<div id="balanco-pagination" style="display: flex; justify-content: center; gap: 8px; margin-top: 15px;"></div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const rows = document.querySelectorAll('.balanco-row');
+        if (rows.length === 0) return;
+
+        const rowsPerPage = 10;
+        const totalPages = Math.ceil(rows.length / rowsPerPage);
+        let currentPage = 1;
+
+        function renderTable(page) {
+            currentPage = page;
+            const start = (page - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+
+            rows.forEach((row, index) => {
+                row.style.display = (index >= start && index < end) ? '' : 'none';
+            });
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const paginationEl = document.getElementById('balanco-pagination');
+            paginationEl.innerHTML = '';
+            if (totalPages <= 1) return;
+
+            // prev
+            const prev = document.createElement('button');
+            prev.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prev.className = 'btn-outline';
+            prev.style.padding = '6px 12px';
+            prev.disabled = currentPage === 1;
+            if (currentPage === 1) prev.style.opacity = '0.5';
+            prev.onclick = () => renderTable(currentPage - 1);
+            paginationEl.appendChild(prev);
+
+            // pages
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.innerText = i;
+                btn.className = i === currentPage ? 'btn-primary' : 'btn-outline';
+                btn.style.padding = '6px 12px';
+                btn.onclick = () => renderTable(i);
+                paginationEl.appendChild(btn);
+            }
+
+            // next
+            const next = document.createElement('button');
+            next.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            next.className = 'btn-outline';
+            next.style.padding = '6px 12px';
+            next.disabled = currentPage === totalPages;
+            if (currentPage === totalPages) next.style.opacity = '0.5';
+            next.onclick = () => renderTable(currentPage + 1);
+            paginationEl.appendChild(next);
+        }
+
+        renderTable(1);
+    });
+</script>
+
+<!-- Lotes Balanço -->
+<div class="section-header" style="margin-top: 40px;">
+    <h2>Balanço de Lotes</h2>
+</div>
+
+<div class="lotes-grid">
+    <!-- Balneabilidade -->
+    <div class="lote-card">
+        <div class="lote-card-header" style="background: #1a5c9e; color: white;">
+            <i class="fas fa-water"></i> Lotes Balneabilidade
+        </div>
+        <div class="table-container" style="margin-top: 0; border-radius: 0 0 20px 20px;">
+            <table style="min-width: auto;">
+                <thead>
+                    <tr>
+                        <th>Lote</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in lotes_balneabilidade %}
+                    <tr>
+                        <td>{{ item.lote }}</td>
+                        <td>{{ item.total }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" style="text-align: center; color: #6f8aac;">Nenhum lote</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Açude -->
+    <div class="lote-card">
+        <div class="lote-card-header" style="background: #2d6a4f; color: white;">
+            <i class="fas fa-tint"></i> Lotes Açude
+        </div>
+        <div class="table-container" style="margin-top: 0; border-radius: 0 0 20px 20px;">
+            <table style="min-width: auto;">
+                <thead>
+                    <tr>
+                        <th>Lote</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in lotes_acude %}
+                    <tr>
+                        <td>{{ item.lote }}</td>
+                        <td>{{ item.total }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" style="text-align: center; color: #6f8aac;">Nenhum lote</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Rio -->
+    <div class="lote-card">
+        <div class="lote-card-header" style="background: #b9770e; color: white;">
+            <i class="fas fa-river"></i> Lotes Rio
+        </div>
+        <div class="table-container" style="margin-top: 0; border-radius: 0 0 20px 20px;">
+            <table style="min-width: auto;">
+                <thead>
+                    <tr>
+                        <th>Lote</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in lotes_rio %}
+                    <tr>
+                        <td>{{ item.lote }}</td>
+                        <td>{{ item.total }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="2" style="text-align: center; color: #6f8aac;">Nenhum lote</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Gráfico simples (opcional, pode ser implementado com Chart.js) -->
+<div class="section-header" style="margin-top: 40px;">
+    <h2>Distribuição mensal</h2>
+    <div class="actions">
+        <button class="btn-outline" onclick="alternarGrafico()"><i class="fas fa-chart-bar"></i> Ver gráfico</button>
+    </div>
+</div>
+<div id="graficoContainer"
+    style="display: none; background: white; border-radius: 24px; padding: 24px; border: 1px solid #e2eaf2; margin-top: 16px;">
+    <canvas id="graficoBalanco" style="width:100%; max-height:300px;"></canvas>
+</div>
+
+<!-- Estilos adicionais (reaproveitados) -->
+<style>
+    /* mesmos estilos da página de relatórios, garantindo consistência */
+    .filters-card {
+        background: white;
+        border-radius: 24px;
+        padding: 24px 28px;
+        margin-top: 20px;
+        box-shadow: 0 8px 22px rgba(0, 32, 64, 0.04);
+        border: 1px solid #e2eaf2;
+    }
+
+    .filters-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .filters-header h3 {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #1e2f44;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .filters-form .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: flex-end;
+    }
+
+    .filters-form .form-group {
+        flex: 1 1 180px;
+        min-width: 150px;
+    }
+
+    .filters-form label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #2e4b70;
+        margin-bottom: 6px;
+        display: block;
+    }
+
+    .filters-form select,
+    .filters-form input {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1.5px solid #dae2ed;
+        border-radius: 16px;
+        background: #fbfdff;
+        font-size: 0.9rem;
+        transition: 0.2s;
+    }
+
+    .filters-form select:focus,
+    .filters-form input:focus {
+        border-color: #1a5c9e;
+        box-shadow: 0 0 0 3px rgba(26, 92, 158, 0.1);
+        outline: none;
+    }
+
+    .btn-primary {
+        background: #1a5c9e;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 40px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary:hover {
+        background: #0f4370;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 65, 131, 0.2);
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: 1px solid #b9cfec;
+        padding: 10px 20px;
+        border-radius: 40px;
+        color: #1e3f66;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-outline:hover {
+        background: #eaf0fa;
+        border-color: #7fa3cc;
+    }
+
+    .badge-info {
+        background: #e2eafd;
+        padding: 6px 14px;
+        border-radius: 40px;
+        font-size: 0.85rem;
+        color: #1f5092;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .table-container {
+        margin-top: 16px;
+    }
+
+    .table-container table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-container th {
+        text-align: left;
+        padding: 18px 16px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #4d6a8c;
+        background: #f8fbfe;
+        border-bottom: 1px solid #dde5f0;
+    }
+
+    .table-container td {
+        padding: 16px;
+        border-bottom: 1px solid #e9eef5;
+        color: #1e364f;
+        font-size: 0.95rem;
+    }
+
+    @media (max-width: 600px) {
+        .filters-form .form-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+
+    .lotes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 24px;
+        margin-bottom: 30px;
+    }
+
+    .lote-card {
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 6px 18px rgba(0, 35, 70, 0.04);
+        border: 1px solid #e3eaf2;
+        overflow: hidden;
+        transition: transform 0.15s ease;
+    }
+
+    .lote-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(0, 50, 90, 0.08);
+    }
+
+    .lote-card-header {
+        padding: 16px 18px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .lote-card .table-container {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+
+    .lote-card table {
+        margin: 0;
+    }
+
+    .lote-card th {
+        background: #f8fbfe;
+        color: #1a5c9e;
+        font-weight: 600;
+        padding: 12px 16px;
+    }
+
+    .lote-card td {
+        padding: 12px 16px;
+    }
+
+    .lote-card tbody tr:last-child td {
+        border-bottom: none;
+    }
+</style>
+
+<!-- Script para gráfico (Chart.js) - opcional -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    function alternarGrafico() {
+        const container = document.getElementById('graficoContainer');
+        if (container.style.display === 'none') {
+            container.style.display = 'block';
+            renderizarGrafico();
+        } else {
+            container.style.display = 'none';
+        }
+    }
+
+    function renderizarGrafico() {
+        // Dados vindos do backend (podem ser passados via json)
+        const ctx = document.getElementById('graficoBalanco').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [{% for item in balanco %}'{{ item.parametro_nome }}',{% endfor %}],
+    datasets: [{
+        label: 'Valor médio',
+        data: [{% for item in balanco %}{{ item.media|default:0 }}, {% endfor %}],
+        backgroundColor: 'rgba(26, 92, 158, 0.7)',
+            borderRadius: 8
+                }]
+            },
+    options: {
+        responsive: true,
+            maintainAspectRatio: false,
+                plugins: {
+            legend: { display: false }
+        }
+    }
+        });
+    }
+
+    function exportarBalanco() {
+        window.location.href = "{% url 'exportar_balanco' %}?" + window.location.search.substring(1);
+    }
+</script>
+{% endblock %}

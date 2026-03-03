@@ -10,152 +10,142 @@
 {% block content %}
 <!-- Cards de resumo -->
 <div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-map-marked-alt"></i></div>
+    <div class="stat-card"
+        style="box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-radius: 12px; background: #fff; padding: 20px; display: flex; align-items: center; gap: 15px;">
+        <div class="stat-icon"
+            style="background: #e3f2fd; color: #1565c0; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+            <i class="fas fa-flask"></i>
+        </div>
         <div class="stat-info">
-            <h3>12</h3>
-            <p>Pontos monitorados</p>
+            <h3 style="margin: 0; font-size: 24px; color: #333;">{{ total_analises }}</h3>
+            <p style="margin: 0; font-size: 13px; color: #666; text-transform: uppercase;">Análises realizadas</p>
         </div>
     </div>
-    <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+    <div class="stat-card"
+        style="box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-radius: 12px; background: #fff; padding: 20px; display: flex; align-items: center; gap: 15px;">
+        <div class="stat-icon"
+            style="background: #e8f5e9; color: #2e7d32; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+            <i class="fas fa-map-marked-alt"></i>
+        </div>
         <div class="stat-info">
-            <h3>8</h3>
-            <p>Próprias</p>
+            <h3 style="margin: 0; font-size: 24px; color: #333;">{{ total_locais }}</h3>
+            <p style="margin: 0; font-size: 13px; color: #666; text-transform: uppercase;">Origens monitoradas</p>
         </div>
     </div>
-    <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+    <div class="stat-card"
+        style="box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-radius: 12px; background: #fff; padding: 20px; display: flex; align-items: center; gap: 15px;">
+        <div class="stat-icon"
+            style="background: #fff3e0; color: #e65100; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+            <i class="fas fa-list"></i>
+        </div>
         <div class="stat-info">
-            <h3>4</h3>
-            <p>Impróprias</p>
+            <h3 style="margin: 0; font-size: 24px; color: #333;">{{ total_parametros }}</h3>
+            <p style="margin: 0; font-size: 13px; color: #666; text-transform: uppercase;">Parâmetros de rastreio</p>
         </div>
     </div>
-    <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+    <div class="stat-card"
+        style="box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-radius: 12px; background: #fff; padding: 20px; display: flex; align-items: center; gap: 15px;">
+        <div class="stat-icon"
+            style="background: #f3e5f5; color: #7b1fa2; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+            <i class="fas fa-clock"></i>
+        </div>
         <div class="stat-info">
-            <h3>22</h3>
-            <p>Outras análises</p>
+            <h3 style="margin: 0; font-size: 24px; color: #333;">Hoje</h3>
+            <p style="margin: 0; font-size: 13px; color: #666; text-transform: uppercase;">Última atualização</p>
         </div>
     </div>
 </div>
 
-<!-- Tabela de Balneabilidade -->
+<!-- Tabela de Coletas -->
 <div class="section-header">
-    <h2>Praias monitoradas · última coleta</h2>
-    <button class="btn-outline"><i class="fas fa-plus"></i> Nova coleta</button>
+    <h2>Últimas coletas cadastradas</h2>
+    <a href="{% url 'analises' %}" class="btn-outline"><i class="fas fa-plus"></i> Nova coleta</a>
 </div>
 
 <div class="table-container">
-    <table>
+    <table
+        style="width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.02);">
         <thead>
-            <tr>
-                <th>Praia</th>
-                <th>Município</th>
-                <th>Data da coleta</th>
-                <th>Coliformes (NMP/100mL)</th>
-                <th>Status</th>
-                <th>Ações</th>
+            <tr style="background-color: #f8fbfe; color: #1a5c9e; text-align: left;">
+                <th style="padding: 15px 20px; font-weight: 600;">Amostra</th>
+                <th style="padding: 15px 20px; font-weight: 600;">Origem</th>
+                <th style="padding: 15px 20px; font-weight: 600;">Data da Coleta</th>
+                <th style="padding: 15px 20px; font-weight: 600;">Coletador</th>
+                <th style="padding: 15px 20px; font-weight: 600;">Ações</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td><strong>Praia do Futuro</strong></td>
-                <td>Fortaleza</td>
-                <td>15/02/2025</td>
-                <td>220</td>
-                <td><span class="status-badge propria">Própria</span></td>
-                <td class="action-icons">
-                    <i class="fas fa-eye" title="Visualizar"></i>
-                    <i class="fas fa-edit" title="Editar"></i>
-                    <i class="fas fa-file-pdf" title="Relatório"></i>
+            {% for analise in ultimas_coletas %}
+            <tr style="border-bottom: 1px solid #eef2f6; transition: background 0.2s;">
+                <td style="padding: 15px 20px;"><strong>{{ analise.amostra }}</strong></td>
+                <td style="padding: 15px 20px;">{{ analise.origem.nome }}</td>
+                <td style="padding: 15px 20px;">{{ analise.data_coleta|date:"d/m/Y" }}</td>
+                <td style="padding: 15px 20px;">{{ analise.coletador.nome|default:"-" }}</td>
+                <td style="padding: 15px 20px; display: flex; gap: 10px;">
+                    <a href="{% url 'ver_relatorio' analise.id %}" style="color: #748fb0;"><i class="fas fa-eye"
+                            title="Visualizar"></i></a>
+                    <a href="{% url 'relatorio_pdf' analise.id %}" style="color: #748fb0;"><i class="fas fa-file-pdf"
+                            title="Relatório"></i></a>
                 </td>
             </tr>
+            {% empty %}
             <tr>
-                <td><strong>Iracema</strong></td>
-                <td>Fortaleza</td>
-                <td>15/02/2025</td>
-                <td>980</td>
-                <td><span class="status-badge impropria">Imprópria</span></td>
-                <td class="action-icons">
-                    <i class="fas fa-eye"></i>
-                    <i class="fas fa-edit"></i>
-                    <i class="fas fa-file-pdf"></i>
+                <td colspan="5" style="text-align: center; color: #999; padding: 30px;">
+                    <i class="fas fa-flask" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                    Nenhuma coleta lançada.
                 </td>
             </tr>
-            <tr>
-                <td><strong>Praia do Meireles</strong></td>
-                <td>Fortaleza</td>
-                <td>14/02/2025</td>
-                <td>150</td>
-                <td><span class="status-badge propria">Própria</span></td>
-                <td class="action-icons">
-                    <i class="fas fa-eye"></i>
-                    <i class="fas fa-edit"></i>
-                    <i class="fas fa-file-pdf"></i>
-                </td>
-            </tr>
-            <tr>
-                <td><strong>Caponga</strong></td>
-                <td>Cascavel</td>
-                <td>13/02/2025</td>
-                <td>1250</td>
-                <td><span class="status-badge impropria">Imprópria</span></td>
-                <td class="action-icons">
-                    <i class="fas fa-eye"></i>
-                    <i class="fas fa-edit"></i>
-                    <i class="fas fa-file-pdf"></i>
-                </td>
-            </tr>
+            {% endfor %}
         </tbody>
     </table>
 </div>
 
-<!-- Outras análises laboratoriais -->
-<div class="section-header">
-    <h2>Outras análises em andamento</h2>
-    <button class="btn-outline"><i class="fas fa-filter"></i> Filtrar</button>
+<!-- Outras análises em andamento -->
+<div class="section-header" style="margin-top: 40px;">
+    <h2>Últimos parâmetros monitorados</h2>
+    <a href="{% url 'relatorio' %}" class="btn-outline"><i class="fas fa-filter"></i> Ir para Relatórios</a>
 </div>
 
-<div class="analises-grid">
-    <div class="analise-card">
-        <div class="card-header">
-            <h4>Água - ETA Norte</h4>
-            <span class="card-tag">Físico-química</span>
+<div class="analises-grid"
+    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+    {% for item in ultimos_parametros %}
+    <div class="analise-card"
+        style="background: white; border-radius: 16px; padding: 20px; border: 1px solid #eef2f6; box-shadow: 0 4px 15px rgba(0,0,0,0.02); transition: transform 0.2s;">
+        <div class="card-header"
+            style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+            <h4 style="margin: 0; color: #1a5c9e; font-size: 16px;">{{ item.analise.origem.nome }}</h4>
+            <span class="card-tag"
+                style="background: #f1f5f9; color: #475569; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;">{{ item.analise.amostra }}</span>
         </div>
-        <div class="card-detail"><i class="fas fa-calendar"></i> 18/02/2025</div>
-        <div class="card-detail"><i class="fas fa-flask"></i> pH, Cloro, Turbidez</div>
-        <div class="progresso">
-            <div class="progresso-bar" style="width: 100%;"></div>
+        <div class="card-detail" style="color: #64748b; font-size: 13px; margin-bottom: 8px;">
+            <i class="fas fa-calendar" style="width: 20px;"></i> Coleta: {{ item.analise.data_coleta|date:"d/m/Y"|default:"-" }}
         </div>
-        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #1a5c9e;">
-            <span>Concluída</span> <i class="fas fa-download"></i></div>
+        <div class="card-detail text-muted small mb-2">
+            <i class="fas fa-user me-1"></i>
+            <strong>Analista:</strong>
+            {{ item.analista.nome|default:"-" }}
+        </div>
+        <div class="card-detail" style="color: #64748b; font-size: 13px; margin-bottom: 8px;">
+            <i class="fas fa-vial" style="width: 20px;"></i> Parâmetro: {{ item.parametro.nome|default:"-" }}
+        </div>
+        <div class="card-detail" style="color: #64748b; font-size: 13px; margin-bottom: 15px;">
+            <i class="fas fa-vial" style="width: 20px;"></i> Result: <strong style="color: #0f172a;">{{ item.resultado|default:"Pendente" }} {{ item.parametro.unidade }}</strong>
+        </div>
+
+        <div class="progresso"
+            style="height: 6px; background: #e2e8f0; border-radius: 10px; overflow: hidden; margin-bottom: 10px;">
+            <div class="progresso-bar"
+                style="height: 100%; width: {% if item.resultado %}100{% else %}50{% endif %}%; background: {% if item.resultado %}#10b981{% else %}#f59e0b{% endif %}; border-radius: 10px; transition: width 0.5s ease;">
+            </div>
+        </div>
+        <div
+            style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 500; color: {% if item.resultado %}#10b981{% else %}#f59e0b{% endif %};">
+            <span>{% if item.resultado %}Analisado ✓{% else %}Aguardando medição ⏳{% endif %}</span>
+            <span>{% if item.resultado %}100%{% else %}50%{% endif %}</span>
+        </div>
     </div>
-    <div class="analise-card">
-        <div class="card-header">
-            <h4>Efluente - Frigorífico</h4>
-            <span class="card-tag">Microbiológica</span>
-        </div>
-        <div class="card-detail"><i class="fas fa-calendar"></i> 17/02/2025</div>
-        <div class="card-detail"><i class="fas fa-flask"></i> Coliformes totais, E. coli</div>
-        <div class="progresso">
-            <div class="progresso-bar" style="width: 45%;"></div>
-        </div>
-        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;"><span>Em análise</span>
-            <span>45%</span></div>
-    </div>
-    <div class="analise-card">
-        <div class="card-header">
-            <h4>Solo - Lote 42</h4>
-            <span class="card-tag">Metais pesados</span>
-        </div>
-        <div class="card-detail"><i class="fas fa-calendar"></i> 16/02/2025</div>
-        <div class="card-detail"><i class="fas fa-flask"></i> Chumbo, Cádmio, Mercúrio</div>
-        <div class="progresso">
-            <div class="progresso-bar" style="width: 70%;"></div>
-        </div>
-        <div style="display: flex; justify-content: space-between; font-size: 0.8rem;"><span>Em andamento</span>
-            <span>70%</span></div>
-    </div>
+    {% empty %}
+    <div style="color: #666; font-style: italic;">Não há parâmetros lançados ainda.</div>
+    {% endfor %}
 </div>
 {% endblock %}

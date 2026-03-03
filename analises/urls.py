@@ -8,11 +8,19 @@ urlpatterns = [
     path('parametros/', views.cadastro_parametro, name='cadastro_parametro'),
     path('parametros/editar/<int:id>/', views.editar_parametro, name='editar_parametro'),
     path('parametros/excluir/<int:id>/', views.excluir_parametro, name='excluir_parametro'),
+    
+    path('analistas/', views.analistas, name='analistas'),
+    path('analistas/editar/<int:id>/', views.editar_analista, name='editar_analista'),
+    path('analistas/excluir/<int:id>/', views.excluir_analista, name='excluir_analista'),
+
     path('analises/', views.analises, name='analises'),
     path('relatorio/', views.relatorio, name='relatorio'),
     path('relatorio/<int:id>/', views.ver_relatorio, name='ver_relatorio'),
     path('relatorio/<int:id>/atualizar/', views.atualizar_relatorio, name='atualizar_relatorio'),
     path('relatorio/<int:id>/pdf/', views.relatorio_pdf, name='relatorio_pdf'),
+    
+    path('balancos/', views.balancos, name='balancos'),
+    path('balancos/exportar/', views.exportar_balanco, name='exportar_balanco'),
 
 
     # Rotas de Autenticação nativas
