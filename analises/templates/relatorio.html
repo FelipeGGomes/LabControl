@@ -3,13 +3,18 @@
 {% block title %}Relatórios · LabDash{% endblock %}
 
 {% block page_header %}
-<h1>Relatórios</h1>
-<div class="breadcrumb">Dashboard / Relatórios</div>
+<h1>Analises</h1>
+<div class="breadcrumb">Dashboard / Analises</div>
 {% endblock %}
 
 {% block content %}
 
 <!-- Filtros para relatórios -->
+
+<div class="section-header">
+    <h2>Últimas coletas cadastradas</h2>
+    <a href="{% url 'analises' %}" class="btn-outline"><i class="fas fa-plus"></i> Nova Analise</a>
+</div>
 <div class="filters-card">
     <div class="filters-header">
         <h3><i class="fas fa-filter"></i> Filtrar relatórios</h3>
@@ -27,7 +32,7 @@
                     <option value="">Todas</option>
                     {% for o in origens %}
                     {% with o.id|stringformat:"s" as oid %}
-                    <option value="{{ o.id }}" {% if request.GET.origem ==  oid %}selected{% endif %}>
+                    <option value="{{ o.id }}" {% if request.GET.origem == oid %}selected{% endif %}>
                         {{ o.nome }}
                     </option>
                     {% endwith %}
@@ -80,7 +85,10 @@
 <div class="section-header" style="margin-top: 40px;">
     <h2>Relatórios gerados</h2>
     <div class="actions">
-        <button class="btn-outline"><i class="fas fa-download"></i> Exportar lista</button>
+        <a href="{% url 'exportar_relatorios_lista' %}?{{ request.GET.urlencode }}" target="_blank" class="btn-outline"
+            style="text-decoration: none;">
+            <i class="fas fa-download"></i> Exportar lista
+        </a>
     </div>
 </div>
 
@@ -98,31 +106,58 @@
             </tr>
         </thead>
         <tbody>
-           {% for r in relatorio %}
-                <tr>
-                    <td>{{ r.id }}</td>
-                    <td><strong>{{ r.amostra|default:"N/A" }}</strong></td>
-                    <td>{{ r.origem.nome }}</td>
-                    <td>{{ r.data_coleta|date:"d/m/Y" }} {{ r.hora_coleta|time:"H:i" }}</td>
-                    <td>{{ r.coletador.nome|default:"-" }}</td>
-                    <td class="action-icons">
-                        <a href="{% url 'ver_relatorio' r.id %}">
-                            <i class="fas fa-edit" title="Visualizar"
-                                style="cursor: pointer; color: #748fb0; margin: 0 6px;"></i>
-                        </a>                        
-                        <a href="{% url 'relatorio_pdf' r.id %}" target="_blank">
-                            <i class="fas fa-file-pdf" title="Download PDF"
-                                style="cursor: pointer; color: #d32f2f; margin: 0 6px;"></i>
-                        </a>
-                    </td>
-                </tr>
+            {% for r in relatorio %}
+            <tr>
+                <td>{{ r.id }}</td>
+                <td><strong>{{ r.amostra|default:"N/A" }}</strong></td>
+                <td>{{ r.origem.nome }}</td>
+                <td>{{ r.data_coleta|date:"d/m/Y" }} {{ r.hora_coleta|time:"H:i" }}</td>
+                <td>{{ r.coletador.nome|default:"-" }}</td>
+                <td class="action-icons">
+                    <a href="{% url 'ver_relatorio' r.id %}">
+                        <i class="fas fa-edit" title="Visualizar"
+                            style="cursor: pointer; color: #748fb0; margin: 0 6px;"></i>
+                    </a>
+                    <a href="{% url 'relatorio_pdf' r.id %}" target="_blank">
+                        <i class="fas fa-file-pdf" title="Download PDF"
+                            style="cursor: pointer; color: #d32f2f; margin: 0 6px;"></i>
+                    </a>
+                </td>
+            </tr>
             {% empty %}
-                <tr>
-                    <td colspan="6" style="text-align: center;">Nenhum relatório encontrado.</td>
-                </tr>
+            <tr>
+                <td colspan="6" style="text-align: center;">Nenhum relatório encontrado.</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- Paginação -->
+    <div style="display: flex; justify-content: flex-end; padding: 16px; align-items: center; gap: 8px;">
+        {% if relatorio.has_previous %}
+        <a href="?page={{ relatorio.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+            style="padding: 6px 12px; border: 1px solid #d0ddee; border-radius: 8px; color: #1e3f66; text-decoration: none; font-size: 0.9rem;">&laquo;
+            Anterior</a>
+        {% else %}
+        <span
+            style="padding: 6px 12px; border: 1px solid #e1ebf7; border-radius: 8px; color: #a5b8ce; font-size: 0.9rem; cursor: not-allowed;">&laquo;
+            Anterior</span>
+        {% endif %}
+
+        <span style="font-size: 0.9rem; color: #6f8aac;">
+            Página {{ relatorio.number|default:"1" }} de {{ relatorio.paginator.num_pages|default:"1" }}
+        </span>
+
+        {% if relatorio.has_next %}
+        <a href="?page={{ relatorio.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+            style="padding: 6px 12px; border: 1px solid #d0ddee; border-radius: 8px; color: #1e3f66; text-decoration: none; font-size: 0.9rem;">Próxima
+            &raquo;</a>
+        {% else %}
+        <span
+            style="padding: 6px 12px; border: 1px solid #e1ebf7; border-radius: 8px; color: #a5b8ce; font-size: 0.9rem; cursor: not-allowed;">Próxima
+            &raquo;</span>
+        {% endif %}
+    </div>
 </div>
 
 <!-- Estilos adicionais para os filtros (podem ir no arquivo CSS principal) -->

@@ -267,6 +267,80 @@ def relatorio(request):
     }
     return render(request, 'relatorio.html', contexto)
 
+def exportar_relatorios_lista(request):
+    relatorios_lista = Analises.objects.all()
+
+    # Captura dos filtros do GET
+    f_origem = request.GET.get('origem')
+    f_parametro = request.GET.get('parametro')
+    f_data_inicio = request.GET.get('data_inicio')
+    f_data_fim = request.GET.get('data_fim')
+    f_amostra = request.GET.get('amostra')
+    f_coletador = request.GET.get('coletador')
+
+    # Dicionario para preencher o rotulo dos filtros no head do PDF
+    filtros_legenda = {
+        'amostra': 'Todas',
+        'origem': 'Todas',
+        'parametro': 'Todos',
+        'coletador': 'Todos',
+        'data_inicio': '-',
+        'data_fim': '-'
+    }
+
+    # Aplicação dos filtros
+    if f_origem:
+        relatorios_lista = relatorios_lista.filter(origem_id=f_origem)
+        origem = Origem.objects.filter(id=f_origem).first()
+        filtros_legenda['origem'] = origem.nome if origem else f_origem
+
+    if f_coletador:
+        relatorios_lista = relatorios_lista.filter(coletador_id=f_coletador)
+        col = Analista.objects.filter(id=f_coletador).first()
+        filtros_legenda['coletador'] = col.nome if col else f_coletador
+    
+    if f_parametro:
+        relatorios_lista = relatorios_lista.filter(analiseparametro__parametro_id=f_parametro).distinct()
+        param = Parametro.objects.filter(id=f_parametro).first()
+        filtros_legenda['parametro'] = param.nome if param else f_parametro
+        
+    if f_data_inicio:
+        relatorios_lista = relatorios_lista.filter(data_coleta__gte=f_data_inicio)
+        filtros_legenda['data_inicio'] = datetime.strptime(f_data_inicio, '%Y-%m-%d').strftime('%d/%m/%Y')
+        
+    if f_data_fim:
+        relatorios_lista = relatorios_lista.filter(data_coleta__lte=f_data_fim)
+        filtros_legenda['data_fim'] = datetime.strptime(f_data_fim, '%Y-%m-%d').strftime('%d/%m/%Y')
+
+    if f_amostra:
+        relatorios_lista = relatorios_lista.filter(amostra__icontains=f_amostra)
+        filtros_legenda['amostra'] = f_amostra
+
+    relatorios_lista = relatorios_lista.order_by('-data_coleta')
+
+    template_path = 'pdf/relatorios_lista_pdf.html'
+    context = {
+        'relatorios': relatorios_lista,
+        'relatorios_count': relatorios_lista.count(),
+        'filtros': filtros_legenda
+    }
+
+    response = HttpResponse(content_type='application/pdf')
+    filename = f"labcontrol_relatorios_lista_{timezone.now().strftime('%Y%m%d%H%M')}.pdf"
+    response['Content-Disposition'] = f'inline; filename="{filename}"'
+
+    template = get_template(template_path)
+    html = template.render(context)
+    
+    pisa_status = pisa.CreatePDF(
+        html, dest=response,
+        link_callback=lambda uri, _: os.path.join(settings.BASE_DIR, uri.replace(settings.STATIC_URL, 'static/'))
+    )
+    
+    if pisa_status.err:
+        return HttpResponse('Tivemos erros ao imprimir o PDF: \u003cpre\u003e' + html + '\u003c/pre\u003e')
+    return response
+
 def ver_relatorio(request, id):
     # Recupera a análise e envia seus parâmetros para a view detalhada
     analise = get_object_or_404(Analises, id=id)

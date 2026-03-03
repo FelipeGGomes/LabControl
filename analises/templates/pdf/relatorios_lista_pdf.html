@@ -1,0 +1,163 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Relatório de Análises Geradas</title>
+    <style>
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .header-table {
+            width: 100%;
+            border-bottom: 2px solid #1a5c9e;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .titulo {
+            text-align: center;
+            margin: 20px 0 30px 0;
+        }
+
+        .titulo h1 {
+            color: #1a5c9e;
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .titulo p {
+            font-size: 13px;
+            color: #666;
+            margin: 0;
+        }
+
+        .filtros-aplicados {
+            background: #f8fbfe;
+            border: 1px solid #dde5f0;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 12px;
+        }
+
+        .filtros-aplicados strong {
+            color: #1a5c9e;
+        }
+
+        table.tabela-dados {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-bottom: 30px;
+        }
+
+        .tabela-dados th,
+        .tabela-dados td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .tabela-dados th {
+            background-color: #1a5c9e;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .tabela-dados tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .rodape {
+            margin-top: 40px;
+            font-size: 10px;
+            color: #888;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Cabeçalho Oficial -->
+    <table class="header-table">
+        <tr>
+            <td style="width: 100px; padding-right: 2px; vertical-align: middle;">
+                <img src="{% static 'image/sudema_logo.png' %}" style="width: 100px; height: 100px;" alt="Logo">
+            </td>
+            <td style="vertical-align: middle;">
+                <strong style="font-size: 16px;">SUDEMA</strong><br>
+                <span style="font-size: 11px; color: #555;">
+                    Superintendência de Administração do Meio Ambiente
+                </span>
+            </td>
+            <td style="text-align: right; font-size: 11px; vertical-align: middle;">
+                <strong>LabControl - LISTAGEM DE RELATÓRIOS</strong><br>
+                Emissão: {% now "d/m/Y H:i" %}
+            </td>
+        </tr>
+    </table>
+
+    <!-- Título Principal -->
+    <div class="titulo">
+        <h1>Relatórios Gerados</h1>
+        <p>Listagem de amostragens cadastradas correspondentes aos critérios de filtro informados</p>
+    </div>
+
+    <!-- Filtros Aplicados Informacionais -->
+    <div class="filtros-aplicados">
+        <strong>Filtros Pesquisados:</strong>
+        <span style="margin-left: 10px;">
+            <b>Amostra:</b> {{ filtros.amostra }} |
+            <b>Origem:</b> {{ filtros.origem }} |
+            <b>Coletador:</b> {{ filtros.coletador }} |
+            <b>Período:</b> {{ filtros.data_inicio }} a {{ filtros.data_fim }} |
+            <b>Total Analisado:</b> {{ relatorios_count }} laudos encontrados.
+        </span>
+    </div>
+
+    <!-- Tabela Restrita dos Dados -->
+    <table class="tabela-dados">
+        <thead>
+            <tr>
+                <th style="width: 10%;">ID</th>
+                <th style="width: 25%;">Nome da Amostra</th>
+                <th style="width: 25%;">Origem</th>
+                <th style="width: 20%;">Data da Coleta</th>
+                <th style="width: 20%;">Coletador</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in relatorios %}
+            <tr>
+                <td style="text-align: center;">{{ r.id }}</td>
+                <td><strong>{{ r.amostra|default:"N/A" }}</strong></td>
+                <td>{{ r.origem.nome }}</td>
+                <td style="text-align: center;">{{ r.data_coleta|date:"d/m/Y" }} {{ r.hora_coleta|time:"H:i" }}</td>
+                <td>{{ r.coletador.nome|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: #666; padding: 20px;">
+                    Nenhum relatório encontrado para os filtros informados.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Rodapé -->
+    <div class="rodape">
+        LabControl - Sistema Integrado de Gerenciamento Laboratorial • Módulo de Relatórios •
+        Gerado automaticamente pelo sistema.
+    </div>
+</body>
+
+</html>

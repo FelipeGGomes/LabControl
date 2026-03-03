@@ -458,8 +458,7 @@
     });
 
     function gerarPDF() {
-        // Redirecionar para view que gera PDF
-        window.location.href = "{% url 'relatorio_pdf' relatorio.id %}";
+        window.open("{% url 'relatorio_pdf' relatorio.id %}", "_blank");
     }
 </script>
 {% endblock %}
